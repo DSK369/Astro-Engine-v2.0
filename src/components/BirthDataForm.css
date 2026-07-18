@@ -1,0 +1,120 @@
+.birth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+
+.birth-form fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.birth-form legend {
+  padding: 0 var(--space-2);
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.birth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.birth-form input[type="text"],
+.birth-form input[type="date"],
+.birth-form input[type="time"],
+.birth-form input[type="number"],
+.birth-form select {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 100%;
+}
+
+.birth-form input:focus,
+.birth-form select:focus {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.birth-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .birth-form__row--2 {
+    flex-direction: row;
+  }
+  .birth-form__row--3 {
+    flex-direction: row;
+  }
+}
+
+.birth-form__radio-group {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+}
+
+.birth-form__radio {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+}
+
+.birth-form__radio input {
+  width: auto;
+}
+
+.birth-form__error {
+  color: var(--color-danger);
+  font-size: 0.9em;
+  margin: 0;
+}
+
+.birth-form__submit {
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1em;
+  cursor: pointer;
+  align-self: flex-start;
+  min-height: 44px; /* comfortable touch target */
+}
+
+.birth-form__submit:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.birth-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.birth-form__submit:active:not(:disabled) {
+  transform: translateY(1px);
+}

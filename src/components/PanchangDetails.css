@@ -1,0 +1,41 @@
+.panchang__notice {
+  background: var(--color-accent-light);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.85em;
+  margin: 0 0 var(--space-3);
+}
+
+.panchang__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .panchang__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.panchang__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.panchang__label {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.panchang__value {
+  font-weight: 600;
+}

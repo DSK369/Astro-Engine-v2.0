@@ -1,0 +1,60 @@
+.significator-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .significator-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .significator-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.significator-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.significator-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.significator-card__house {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.significator-card__rashi {
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+}
+
+.significator-card__steps {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto;
+  gap: var(--space-1) 0;
+  font-size: 0.85em;
+}
+
+.significator-card__steps dt {
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.significator-card__steps dd {
+  margin: 0;
+  font-weight: 600;
+}

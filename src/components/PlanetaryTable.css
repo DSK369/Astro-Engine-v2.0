@@ -1,0 +1,84 @@
+.planetary-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.planetary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.planetary-table th,
+.planetary-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.planetary-table th {
+  background: var(--color-accent-light);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+}
+
+.planetary-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.planetary-table__lagna-row {
+  background: var(--color-accent-light);
+  font-weight: 600;
+}
+
+.planetary-table__retro {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/* Below ~480px, fall back to a stacked card layout instead of a
+   horizontally-scrolling table — friendlier on phone-width screens. */
+@media (max-width: 480px) {
+  .planetary-table-wrap {
+    overflow-x: visible;
+    border: none;
+  }
+
+  .planetary-table thead {
+    display: none;
+  }
+
+  .planetary-table, .planetary-table tbody, .planetary-table tr, .planetary-table td {
+    display: block;
+    width: 100%;
+    white-space: normal;
+  }
+
+  .planetary-table tr {
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .planetary-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .planetary-table td:last-child {
+    border-bottom: none;
+  }
+
+  .planetary-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+}

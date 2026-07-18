@@ -1,0 +1,41 @@
+.astro-chart {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.astro-chart__bg {
+  fill: var(--color-surface);
+}
+
+.astro-chart__line {
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+}
+
+.astro-chart__house-number {
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--color-primary);
+}
+
+.astro-chart__sign-label {
+  font-size: 10px;
+  fill: var(--color-text-muted);
+}
+
+.astro-chart__planet {
+  font-size: 12px;
+  fill: var(--color-text);
+}
+
+.astro-chart__planet--retro {
+  fill: var(--color-danger);
+}
+
+.astro-chart__planet--lagna {
+  font-weight: 700;
+  fill: var(--color-primary);
+}

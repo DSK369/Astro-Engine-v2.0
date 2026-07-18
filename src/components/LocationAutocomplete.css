@@ -1,0 +1,63 @@
+.location-autocomplete {
+  position: relative;
+}
+
+.location-autocomplete input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.location-autocomplete input:focus {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.location-autocomplete__list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.location-autocomplete__list li {
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.location-autocomplete__list li.is-active,
+.location-autocomplete__list li:hover {
+  background: var(--color-accent-light);
+}
+
+.location-autocomplete__city {
+  font-weight: 600;
+}
+
+.location-autocomplete__meta {
+  color: var(--color-text-muted);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.location-autocomplete__coords {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8em;
+  color: var(--color-text-muted);
+}

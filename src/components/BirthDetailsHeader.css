@@ -1,0 +1,35 @@
+.birth-header {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2) var(--space-4);
+  font-size: 0.9em;
+}
+
+@media (min-width: 640px) {
+  .birth-header {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .birth-header {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.birth-header__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.birth-header__label {
+  color: var(--color-text-muted);
+}
+
+.birth-header__value {
+  font-weight: 600;
+  text-align: right;
+}
