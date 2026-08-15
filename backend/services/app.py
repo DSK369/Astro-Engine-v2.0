@@ -30,12 +30,12 @@ swe.set_ephe_path(EPHE_PATH)
 
 app = FastAPI(title="Astro Engine API")
 
-# Local-dev-only CORS: the Vite dev server's port drifts (5173/5174/5175...)
-# whenever one is already taken, so this stays permissive rather than
-# pinned to one origin. Tighten this before ever deploying publicly.
+# The Vite dev server's port drifts (5173/5174/5175...) whenever one is
+# already taken, so localhost stays wildcarded; the deployed frontend
+# origin is pinned explicitly.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"^https://dsk369\.github\.io$|^http://localhost:\d+$|^http://127\.0\.0\.1:\d+$",
     allow_methods=["*"],
     allow_headers=["*"],
 )
