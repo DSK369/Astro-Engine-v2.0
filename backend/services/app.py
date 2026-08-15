@@ -24,6 +24,7 @@ from core.significators import compute_significators
 from core.ruling_planets import compute_ruling_planets
 from core.panchang import compute_panchang
 from core.ayanamsa import set_ayanamsa
+from core.horary import find_exact_ascendant_time, get_horary_range
 
 EPHE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ephemeris")
 swe.set_ephe_path(EPHE_PATH)
@@ -63,6 +64,15 @@ class ChartRequest(BaseModel):
     chartStyle: str | None = None
     rahuNode: str = "mean"  # "mean" | "true"
     houseSystem: str | None = None
+
+
+class HoraryRequest(BaseModel):
+    horaryNumber: int  # 1-249
+    date: str  # "YYYY-MM-DD" -- the day to search for the matching ascendant moment
+    location: LocationIn
+    ayanamsa: str = "KP"
+    customAyanamsaValue: str | float | None = None
+    rahuNode: str = "mean"  # "mean" | "true"
 
 
 def _to_camel_placement(p):
@@ -156,6 +166,81 @@ def post_chart(req: ChartRequest):
     planets_out = all_placements[1:]
 
     return {
+        "lagna": lagna_out,
+        "planets": planets_out,
+        "allPlacements": all_placements,
+        "cusps": [_to_camel_cusp(c) for c in cusps_raw],
+        "significators": [_to_camel_significator(s) for s in significators_raw],
+        "rulingPlanets": _to_camel_ruling(ruling_raw),
+        "panchang": {**panchang, "_mock": False},
+        "summary": {
+            "lagnaRashi": lagna_raw["rashi"],
+            "moonRashi": moon_raw["rashi"],
+            "moonNakshatra": moon_raw["nakshatra"],
+            "moonCharan": moon_raw["charan"],
+        },
+        "_mock": False,
+    }
+
+
+@app.post("/horary")
+def post_horary(req: HoraryRequest):
+    """
+    KP Prasna (horary) chart: finds the moment on `date` when the ascendant
+    enters horary number `horaryNumber`'s KP sub-lord zone, then runs that
+    moment through the exact same downstream pipeline as /chart (planets,
+    houses, cusps, significators, ruling planets) -- a horary chart and a
+    natal chart differ only in how the "birth" moment was chosen.
+    """
+    manual_value = float(req.customAyanamsaValue) if req.customAyanamsaValue else None
+    set_ayanamsa(req.ayanamsa, manual_value)
+
+    matched_dt, lagna_raw = find_exact_ascendant_time(
+        req.date, req.location.tz, req.location.lat, req.location.lon, req.horaryNumber
+    )
+
+    jd = to_julian_day(
+        matched_dt.strftime("%Y-%m-%d"), matched_dt.strftime("%H:%M:%S"), req.location.tz
+    )
+
+    true_node = req.rahuNode == "true"
+    planets_raw = get_all_planets(jd, true_node)
+
+    all_raw = [lagna_raw] + planets_raw
+    all_raw, _house_map = assign_houses(all_raw, lagna_raw["rashi"])
+
+    cusps_raw = calculate_placidus_cusps(jd, req.location.lat, req.location.lon)
+    cusp_longitudes = [c["longitude"] for c in cusps_raw]
+    for p in all_raw:
+        p["placidus_house"] = get_placidus_house(p["longitude"], cusp_longitudes)
+
+    significators_raw = compute_significators(all_raw, cusps_raw)
+
+    moon_raw = next(p for p in all_raw if p["planet"] == "Moon")
+    sun_raw = next(p for p in all_raw if p["planet"] == "Sun")
+
+    ruling_raw = compute_ruling_planets(lagna_raw, moon_raw, matched_dt.replace(tzinfo=None))
+    panchang = compute_panchang(
+        sun_raw["longitude"], moon_raw["longitude"], moon_raw["nakshatra"],
+        matched_dt.replace(tzinfo=None)
+    )
+
+    all_placements = [_to_camel_placement(p) for p in all_raw]
+    lagna_out = all_placements[0]
+    planets_out = all_placements[1:]
+
+    horary_range = get_horary_range(req.horaryNumber)
+
+    return {
+        "horaryNumber": req.horaryNumber,
+        "matchedDateTime": matched_dt.isoformat(),
+        "horaryZone": {
+            "fromDeg": horary_range["from_deg"],
+            "toDeg": horary_range["to_deg"],
+            "sign": horary_range["sign"],
+            "nakshatra": horary_range["nakshatra"],
+            "subLord": horary_range["sub_lord"],
+        },
         "lagna": lagna_out,
         "planets": planets_out,
         "allPlacements": all_placements,
