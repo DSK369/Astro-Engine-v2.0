@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KP Generator</title>
+<style>
+body { font-family: Arial; padding:20px;}
+input, select { margin:5px; padding:5px;}
+button { padding:10px; background:blue; color:white; border:none;}
+table { border-collapse: collapse; margin-top:20px; width:100%;}
+th,td { border:1px solid black; font-size:11px; padding:4px;}
+</style>
+</head>
+
+<body>
+
+<h2>KP Generator</h2>
+
+Start Date <input type="date" id="sd" value="2000-01-01">
+End Date <input type="date" id="ed" value="2000-01-10"><br>
+
+Start Time <input type="time" id="st" value="09:00">
+End Time <input type="time" id="et" value="15:00"><br>
+
+Step (min) <input type="number" id="step" value="60"><br>
+
+Lat <input type="text" id="lat" value="19.0760">
+Lon <input type="text" id="lon" value="72.8777"><br>
+
+Ayanamsa
+<select id="ayan">
+<option value="KP">KP (Krishnamurti)</option>
+<option value="LAHIRI">Lahiri</option>
+<option value="TROPICAL">Tropical</option>
+</select><br><br>
+
+<button onclick="gen()">Generate</button>
+
+<table id="t"></table>
+
+<script>
+const cols = ["Name","Date","Time","Location",
+"D_Lag","D_Sun","D_Cha","D_Mar","D_Mer","D_Jup","D_Ven","D_Sat","D_Rah","D_Ket",
+"R_Lag","R_Sun","R_Cha","R_Mar","R_Mer","R_Jup","R_Ven","R_Sat","R_Rah","R_Ket",
+"N_Lag","N_Sun","N_Cha","N_Mar","N_Mer","N_Jup","N_Ven","N_Sat","N_Rah","N_Ket",
+"C_Lag","C_Sun","C_Cha","C_Mar","C_Mer","C_Jup","C_Ven","C_Sat","C_Rah","C_Ket"];
+
+async function gen(){
+
+let payload = {
+start_date: sd.value,
+end_date: ed.value,
+start_time: st.value,
+end_time: et.value,
+step: step.value,
+lat: lat.value,
+lon: lon.value,
+ayanamsa: ayan.value
+};
+
+let res = await fetch("http://127.0.0.1:5000/generate",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(payload)
+});
+
+let data = await res.json();
+
+if(data.error){ alert(data.error); return;}
+
+let t = document.getElementById("t");
+t.innerHTML = "<tr>"+cols.map(c=>"<th>"+c+"</th>").join("")+"</tr>";
+
+data.forEach(r=>{
+t.innerHTML += "<tr>"+cols.map(c=>"<td>"+(r[c]||"")+"</td>").join("")+"</tr>";
+});
+}
+</script>
+
+</body>
+</html>

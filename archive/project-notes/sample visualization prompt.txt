@@ -1,0 +1,77 @@
+This document outlines the architectural and functional requirements for a high-performance, geocentric planetary motion visualization system. As a **Sr. Full Stack Architect**, you will oversee the implementation of this system, which bridges complex astronomical trigonometry with high-frequency data visualization.
+
+---
+
+## 1. Executive Summary
+**Project Name:** Geocentric Ephemeris Visualizer (400-Year Epoch)
+**Objective:** To provide an interactive, web-based graphical representation of planetary motion as seen from Earth, covering a timeline from **-200 to +200 years**. The system must visualize the cyclical nature of the planets through the 12 Rashis (Zodiac signs), including mathematically accurate retrograde loops.
+
+---
+
+## 2. Mathematical Model & Logic
+The engine must simulate the apparent motion of celestial bodies from a geocentric (Earth-centered) perspective using the principle of **Epicyclic Oscillation**.
+
+### 2.1 The Coordinate Engine
+For each planet, the longitude $\theta(t)$ must be calculated using a superposition of mean motion and synodic perturbation:
+$$\theta(t) = (n \cdot t + \phi + A \cdot \sin(\frac{2\pi \cdot t}{T_{syn}})) \pmod{360}$$
+
+* **$n$ (Mean Motion):** Average forward progress through the zodiac.
+* **$A$ (Amplitude):** The "depth" of the retrograde loop.
+* **$T_{syn}$ (Synodic Period):** The interval between successive retrograde occurrences.
+* **$\phi$ (Phase Offset):** Alignment for the starting epoch (Year 0).
+
+### 2.2 Planetary Constants (Conceptual)
+| Body | Mean Motion (n) | Synodic Period ($T_{syn}$) | Behavior |
+| :--- | :--- | :--- | :--- |
+| **Sun** | $360^\circ / 1y$ | N/A | Constant forward wave. |
+| **Moon** | $360^\circ / 27.3d$ | N/A | High-frequency cycle. |
+| **Mercury** | $360^\circ / 1y$ | ~116 days | Fast, tight retrograde loops. |
+| **Jupiter** | $360^\circ / 11.86y$ | ~399 days | Slow motion, large annual loops. |
+
+---
+
+## 3. Technical Stack & Architecture
+
+### 3.1 Hybrid Rendering Strategy
+To maintain **60 FPS** while panning across 146,000+ data points (400 years of daily data), a hybrid approach is mandatory:
+* **HTML5 Canvas:** All planetary "Trace Lines." SVG cannot handle the DOM node count required for 400 years of Moon data.
+* **SVG Layer:** Axes, Rashi labels, and the interactive "Scrubbing" playhead.
+* **D3.js:** Managing the coordinate scales (`scaleLinear`) and the complex Zoom/Pan behaviors.
+
+### 3.2 State & Performance
+* **Variable Sampling:** Implement a dynamic step rate. Use $0.1$ day steps for the Moon/Mercury and $5$ day steps for Saturn/Jupiter to optimize memory.
+* **Path Segmentation Logic:** The renderer must detect "Angular Discontinuity." If $\Delta y > 180^\circ$, the canvas must `moveTo()` instead of `lineTo()` to prevent the line from crossing the screen during a $360^\circ \to 0^\circ$ transition.
+
+---
+
+## 4. UI/UX Functional Requirements
+
+### 4.1 The Y-Axis (Rashi Mapping)
+The Y-axis is fixed from $0^\circ$ to $360^\circ$, divided into 12 bands of $30^\circ$ each.
+* **Labels:** Mesha (Aries), Vrishabha (Taurus), Mithuna (Gemini), Karka (Cancer), Simha (Leo), Kanya (Virgo), Tula (Libra), Vrishchika (Scorpio), Dhanu (Sagittarius), Makara (Capricorn), Kumbha (Aquarius), and Meena (Pisces).
+* **Visual Aid:** Alternating background fills for each Rashi band.
+
+### 4.2 The X-Axis (Timeline)
+* **Range:** Absolute years from -200 to +200.
+* **Interactions:** * **Smooth Zooming:** Transition from a "Centennial Overview" to a "Daily Transit" view.
+    * **Tooltips:** On hover, show precise Rashi name, degree, and date.
+
+### 4.3 Controls & Customization
+* **Planet Toggles:** Multi-select legend to isolate specific planet interactions.
+* **Ayanamsa Toggle:** Ability to shift between Tropical (Sayana) and Sidereal (Nirayana) systems (a constant $24^\circ$ offset for the modern era).
+
+---
+
+## 5. Development Roadmap (Phases)
+
+1.  **Phase 1: Math Core:** Build a utility library to generate Float32Arrays for each planet's 400-year path.
+2.  **Phase 2: D3-Canvas Integration:** Establish a canvas overlay that responds to D3's zoom transform.
+3.  **Phase 3: Logic Implementation:** Code the "discontinuity check" to handle zodiac wraps.
+4.  **Phase 4: Optimization:** Implement a `ResizeObserver` and handle High-DPI scaling for Retina displays.
+
+---
+
+## 6. Senior Architect's Checklist
+* [ ] **High-Precision Data:** Consider a Web Worker for orbital calculations if utilizing real NASA JPL kernels.
+* [ ] **Accessibility:** Ensure the SVG labels are readable and the color palette is color-blind friendly.
+* [ ] **Binary Data:** If fetching from a server, use Protobuf to minimize the 400-year dataset payload.

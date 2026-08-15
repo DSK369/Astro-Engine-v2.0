@@ -1,0 +1,103 @@
+old result : { 
+Venus    | 1998-12-20 → 2011-12-03
+Sun      | 2011-12-03 → 2017-12-03
+Moon     | 2017-12-03 → 2027-12-03
+Mars     | 2027-12-03 → 2034-12-03
+Rahu     | 2034-12-03 → 2052-12-03
+Jupiter  | 2052-12-03 → 2068-12-03
+Saturn   | 2068-12-03 → 2087-12-03
+Mercury  | 2087-12-03 → 2104-12-03
+Ketu     | 2104-12-03 → 2111-12-03
+
+==============================
+Current Mahadasha (Full Details)
+==============================
+
+Moon     | 2017-12-03 → 2027-12-03
+
+Antardasha:
+
+Moon → Moon     | 2017-12-03 → 2018-10-03
+Moon → Mars     | 2018-10-03 → 2019-05-03
+Moon → Rahu     | 2019-05-03 → 2020-11-03
+Moon → Jupiter  | 2020-11-03 → 2022-03-04
+Moon → Saturn   | 2022-03-04 → 2023-10-03
+Moon → Mercury  | 2023-10-03 → 2025-03-03
+Moon → Ketu     | 2025-03-03 → 2025-10-03
+Moon → Venus    | 2025-10-03 → 2027-06-03  <-- CURRENT
+Moon → Sun      | 2027-06-03 → 2027-12-03
+
+Pratyantar (Current AD):
+
+Moon → Venus → Venus    | 2025-10-03 → 2026-01-13
+Moon → Venus → Sun      | 2026-01-13 → 2026-02-13
+Moon → Venus → Moon     | 2026-02-13 → 2026-04-02
+Moon → Venus → Mars     | 2026-04-02 → 2026-05-07  <-- CURRENT
+Moon → Venus → Rahu     | 2026-05-07 → 2026-08-07
+Moon → Venus → Jupiter  | 2026-08-07 → 2026-10-27
+Moon → Venus → Saturn   | 2026-10-27 → 2027-02-01
+Moon → Venus → Mercury  | 2027-02-01 → 2027-04-26
+Moon → Venus → Ketu     | 2027-04-26 → 2027-05-31
+ 
+}
+
+current result : {
+==============================
+Current Mahadasha (Full Details)
+==============================
+
+Moon     | 2017-12-02 → 2027-12-02
+
+Antardasha:
+
+Moon → Moon     | 2017-12-02 → 2018-10-02
+Moon → Mars     | 2018-10-02 → 2019-05-03
+Moon → Rahu     | 2019-05-03 → 2020-10-31
+Moon → Jupiter  | 2020-10-31 → 2022-03-02
+Moon → Saturn   | 2022-03-02 → 2023-10-01
+Moon → Mercury  | 2023-10-01 → 2025-03-01
+Moon → Ketu     | 2025-03-01 → 2025-09-30
+Moon → Venus    | 2025-09-30 → 2027-05-31  <-- CURRENT
+Moon → Sun      | 2027-05-31 → 2027-11-29
+
+Pratyantar (Current AD):
+
+Moon → Venus → Venus    | 2025-09-30 → 2026-01-09
+Moon → Venus → Sun      | 2026-01-09 → 2026-02-08
+Moon → Venus → Moon     | 2026-02-08 → 2026-03-30
+Moon → Venus → Mars     | 2026-03-30 → 2026-05-04  <-- CURRENT
+Moon → Venus → Rahu     | 2026-05-04 → 2026-08-03
+Moon → Venus → Jupiter  | 2026-08-03 → 2026-10-23
+Moon → Venus → Saturn   | 2026-10-23 → 2027-01-27
+Moon → Venus → Mercury  | 2027-01-27 → 2027-04-23
+Moon → Venus → Ketu     | 2027-04-23 → 2027-05-28
+
+Sukshma (Current PD):
+
+Moon → Venus → Mars → Mars     | 2026-03-30 → 2026-04-01
+Moon → Venus → Mars → Rahu     | 2026-04-01 → 2026-04-06
+Moon → Venus → Mars → Jupiter  | 2026-04-06 → 2026-04-10
+Moon → Venus → Mars → Saturn   | 2026-04-10 → 2026-04-15  <-- CURRENT
+Moon → Venus → Mars → Mercury  | 2026-04-15 → 2026-04-20
+Moon → Venus → Mars → Ketu     | 2026-04-20 → 2026-04-22
+Moon → Venus → Mars → Venus    | 2026-04-22 → 2026-04-27
+Moon → Venus → Mars → Sun      | 2026-04-27 → 2026-04-28
+Moon → Venus → Mars → Moon     | 2026-04-28 → 2026-04-30
+
+Prana (Current SD):
+
+Moon → Venus → Mars → Saturn → Saturn   | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Mercury  | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Ketu     | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Venus    | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Sun      | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Moon     | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Mars     | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Rahu     | 2026-04-10 → 2026-04-10
+Moon → Venus → Mars → Saturn → Jupiter  | 2026-04-10 → 2026-04-10
+
+C:\Users\dskod\Desktop\_Main_\Project\astro-engine>
+
+
+
+  }
