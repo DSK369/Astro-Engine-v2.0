@@ -1,80 +1,153 @@
-import { getHouseLayout, getSkeletonLines } from "../../lib/chartGeometry";
+import { useState } from "react";
+import {
+  getHouseLayout,
+  getPlanetLabelMetrics,
+  getSkeletonLines,
+} from "../../lib/chartGeometry";
 import { RASHIS } from "../../lib/vedicTables";
 import "./charts.css";
 
 const SIZE = 400;
-const PADDING = 20;
+const PADDING = 24;
 
 const PLANET_ABBR = {
   Lagna: "As", Sun: "Su", Moon: "Mo", Mars: "Ma", Mercury: "Me",
   Jupiter: "Ju", Venus: "Ve", Saturn: "Sa", Rahu: "Ra", Ketu: "Ke",
+  Uranus: "Ur", Neptune: "Ne", Pluto: "Pl",
 };
 
 function groupByHouse(placements) {
-  const grouped = {};
-  for (const p of placements) {
-    if (!grouped[p.house]) grouped[p.house] = [];
-    grouped[p.house].push(p);
-  }
-  return grouped;
+  return placements.reduce((grouped, placement) => {
+    const house = placement.house;
+    if (!grouped[house]) grouped[house] = [];
+    grouped[house].push(placement);
+    return grouped;
+  }, {});
 }
 
-// Real KP/Vedic software prints the RASHI number (1=Aries..12=Pisces) in
-// each box, not a sequential "house 1, house 2..." label — the box that
-// happens to hold the Lagna's rashi number is what makes it "house 1"
-// positionally. Verified against a real Kismat printout: Lagna in
-// Capricorn (rashi 10) shows "10" in the house-1 box. See
-// docs/PROJECT_CONTEXT.md for the full derivation.
 function getRashiNumberForHouse(houseNum, lagnaRashi) {
   const lagnaIndex = RASHIS.indexOf(lagnaRashi);
   return ((lagnaIndex + houseNum - 1) % 12) + 1;
 }
 
+function compactDegree(degree) {
+  const [wholeDegrees] = String(degree ?? "").match(/\d+/) ?? [];
+  return wholeDegrees ? `${wholeDegrees.padStart(2, "0")}°` : "";
+}
+
+function PlanetDetail({ placement, onClose }) {
+  if (!placement) return null;
+
+  return (
+    <aside className="chart-detail" aria-live="polite">
+      <div>
+        <p className="chart-detail__eyebrow">House {placement.house}</p>
+        <h3>{placement.planet}</h3>
+      </div>
+      <dl className="chart-detail__facts">
+        <div><dt>Sign</dt><dd>{placement.rashi}</dd></div>
+        <div><dt>Degree</dt><dd>{placement.degree}</dd></div>
+        <div><dt>Nakshatra</dt><dd>{placement.nakshatra}</dd></div>
+        <div><dt>Status</dt><dd>{placement.retrograde ? "Retrograde" : "Direct"}</dd></div>
+      </dl>
+      <button type="button" className="chart-detail__close" onClick={onClose} aria-label="Close planet details">
+        Close
+      </button>
+    </aside>
+  );
+}
+
+// Each SVG label is positioned from a candidate sampled inside an inset version
+// of its assigned house polygon. This keeps multi-planet labels bounded by the
+// same geometry that draws the chart rather than relying on arbitrary offsets.
 export default function NorthIndianChart({ placements = [] }) {
+  const [selectedPlanet, setSelectedPlanet] = useState(null);
   const layout = getHouseLayout(SIZE);
   const lines = getSkeletonLines(SIZE);
   const grouped = groupByHouse(placements);
   const total = SIZE + PADDING * 2;
-  const lagnaRashi = placements.find((p) => p.planet === "Lagna")?.rashi;
+  const lagnaRashi = placements.find((placement) => placement.planet === "Lagna")?.rashi;
+  const selected = placements.find((placement) => placement.planet === selectedPlanet) ?? null;
+  const selectedHouse = selected?.house;
 
   return (
-    <svg
-      viewBox={`0 0 ${total} ${total}`}
-      className="astro-chart"
-      role="img"
-      aria-label="North Indian style birth chart"
-    >
-      <g transform={`translate(${PADDING}, ${PADDING})`}>
-        <rect x="0" y="0" width={SIZE} height={SIZE} className="astro-chart__bg" rx="4" />
-        {lines.map((l, i) => (
-          <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} className="astro-chart__line" />
-        ))}
+    <div className="kundli-chart">
+      <svg
+        viewBox={`0 0 ${total} ${total}`}
+        className="astro-chart astro-chart--north"
+        role="img"
+        aria-label="Interactive North Indian style birth chart"
+      >
+        <g transform={`translate(${PADDING}, ${PADDING})`}>
+          <rect x="0" y="0" width={SIZE} height={SIZE} className="astro-chart__bg" rx="3" />
+          {Object.entries(layout).map(([house, houseLayout]) => (
+            <polygon
+              key={`house-${house}`}
+              points={houseLayout.pointsAttr}
+              className={`astro-chart__house${Number(house) === selectedHouse ? " astro-chart__house--selected" : ""}`}
+            />
+          ))}
+          {lines.map((line, index) => (
+            <line key={index} {...line} className="astro-chart__line" />
+          ))}
 
-        {Object.entries(layout).map(([house, { labelX, labelY, planetsY }]) => {
-          const houseNum = Number(house);
-          const occupants = grouped[houseNum] || [];
-          const rashiNumber = lagnaRashi ? getRashiNumberForHouse(houseNum, lagnaRashi) : houseNum;
-          return (
-            <g key={house}>
-              <text x={labelX} y={labelY} className="astro-chart__house-number" textAnchor="middle">
-                {rashiNumber}
-              </text>
-              {occupants.map((p, i) => (
+          {Object.entries(layout).map(([house, houseLayout]) => {
+            const houseNum = Number(house);
+            const occupants = grouped[houseNum] ?? [];
+            const metrics = getPlanetLabelMetrics(occupants.length);
+            const slots = houseLayout.planetSlots(occupants.length, metrics);
+            const rashiNumber = lagnaRashi ? getRashiNumberForHouse(houseNum, lagnaRashi) : houseNum;
+
+            return (
+              <g key={house}>
                 <text
-                  key={p.planet}
-                  x={labelX}
-                  y={planetsY + i * 15}
+                  x={houseLayout.labelX}
+                  y={houseLayout.labelY}
+                  className="astro-chart__house-number"
                   textAnchor="middle"
-                  className={`astro-chart__planet${p.retrograde ? " astro-chart__planet--retro" : ""}${p.planet === "Lagna" ? " astro-chart__planet--lagna" : ""}`}
+                  dominantBaseline="middle"
                 >
-                  {PLANET_ABBR[p.planet] || p.planet.slice(0, 2)}
-                  {p.retrograde ? "(R)" : ""}
+                  {rashiNumber}
                 </text>
-              ))}
-            </g>
-          );
-        })}
-      </g>
-    </svg>
+                {occupants.map((placement, index) => {
+                  const [x, y] = slots[index] ?? [houseLayout.labelX, houseLayout.labelY];
+                  const isSelected = placement.planet === selectedPlanet;
+                  return (
+                    <g
+                      key={placement.planet}
+                      className={`astro-chart__planet-label${isSelected ? " astro-chart__planet-label--selected" : ""}`}
+                      role="button"
+                      tabIndex="0"
+                      aria-label={`Show ${placement.planet} details`}
+                      onClick={() => setSelectedPlanet(placement.planet)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setSelectedPlanet(placement.planet);
+                        }
+                      }}
+                    >
+                      <rect
+                        x={x - metrics.width / 2}
+                        y={y - metrics.height / 2}
+                        width={metrics.width}
+                        height={metrics.height}
+                        rx="3"
+                      />
+                      <text x={x} y={y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: metrics.fontSize }}>
+                        {PLANET_ABBR[placement.planet] ?? placement.planet.slice(0, 2)}
+                        {metrics.showDegree ? ` ${compactDegree(placement.degree)}` : ""}
+                        {placement.retrograde ? " R" : ""}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+      <PlanetDetail placement={selected} onClose={() => setSelectedPlanet(null)} />
+    </div>
   );
 }

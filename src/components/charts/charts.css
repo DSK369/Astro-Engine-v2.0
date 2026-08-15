@@ -1,24 +1,33 @@
 .astro-chart {
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   height: auto;
   display: block;
   margin: 0 auto;
 }
 
 .astro-chart__bg {
-  fill: var(--color-surface);
+  fill: #fffcf7;
+}
+
+.astro-chart__house {
+  fill: transparent;
+  transition: fill 160ms ease;
+}
+
+.astro-chart__house--selected {
+  fill: color-mix(in srgb, var(--color-accent) 14%, transparent);
 }
 
 .astro-chart__line {
-  stroke: var(--color-accent);
-  stroke-width: 1.5;
+  stroke: #674330;
+  stroke-width: 1.4;
 }
 
 .astro-chart__house-number {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
-  fill: var(--color-primary);
+  fill: #a77c3e;
 }
 
 .astro-chart__sign-label {
@@ -26,9 +35,36 @@
   fill: var(--color-text-muted);
 }
 
-.astro-chart__planet {
-  font-size: 12px;
-  fill: var(--color-text);
+.astro-chart__planet-label {
+  cursor: pointer;
+  outline: none;
+}
+
+.astro-chart__planet-label rect {
+  fill: #fff9ed;
+  stroke: #b89b5e;
+  stroke-width: 0.8;
+}
+
+.astro-chart__planet-label text {
+  font-family: var(--font-sans);
+  font-size: 8.6px;
+  font-weight: 750;
+  fill: #3b2723;
+  pointer-events: none;
+}
+
+.astro-chart__planet-label:hover rect,
+.astro-chart__planet-label:focus rect,
+.astro-chart__planet-label--selected rect {
+  fill: #6b1f2b;
+  stroke: #6b1f2b;
+}
+
+.astro-chart__planet-label:hover text,
+.astro-chart__planet-label:focus text,
+.astro-chart__planet-label--selected text {
+  fill: #fffdf8;
 }
 
 .astro-chart__planet--retro {
@@ -38,4 +74,87 @@
 .astro-chart__planet--lagna {
   font-weight: 700;
   fill: var(--color-primary);
+}
+
+.kundli-chart {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.chart-detail {
+  display: grid;
+  grid-template-columns: minmax(84px, 0.7fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background: #fffaf1;
+}
+
+.chart-detail__eyebrow {
+  margin: 0 0 2px;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.chart-detail h3 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.chart-detail__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px var(--space-3);
+  margin: 0;
+}
+
+.chart-detail__facts div {
+  min-width: 0;
+}
+
+.chart-detail dt {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+
+.chart-detail dd {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.chart-detail__close {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .astro-chart {
+    min-width: 340px;
+  }
+
+  .kundli-chart {
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .chart-detail {
+    grid-template-columns: 1fr auto;
+  }
+
+  .chart-detail__facts {
+    grid-column: 1 / -1;
+    order: 3;
+  }
 }

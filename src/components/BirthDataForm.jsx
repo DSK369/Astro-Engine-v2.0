@@ -23,7 +23,7 @@ const DEFAULT_FORM = {
   dob: "",
   tob: "",
   location: null,
-  ayanamsa: "KP",
+  ayanamsa: "CUSTOM_KP",
   customAyanamsaValue: "",
   chartStyle: "north",
   rahuNode: "mean",

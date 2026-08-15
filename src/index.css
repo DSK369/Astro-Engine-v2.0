@@ -1,20 +1,20 @@
 :root {
-  --color-bg: #fdf9f2;
-  --color-surface: #ffffff;
-  --color-border: #e7dcc4;
-  --color-text: #2c1810;
-  --color-text-muted: #6b5a4a;
-  --color-primary: #7a1f2b;      /* maroon */
-  --color-primary-dark: #5c1620;
-  --color-accent: #c8962c;       /* gold */
-  --color-accent-light: #f0dfa8;
-  --color-danger: #b3261e;
-  --color-focus: #8a5a00;
+  --color-bg: #faf7f0;
+  --color-surface: #fffdf8;
+  --color-border: #dfd1b4;
+  --color-text: #3b2723;
+  --color-text-muted: #715d51;
+  --color-primary: #6b1f2b;
+  --color-primary-dark: #4d1520;
+  --color-accent: #c9822b;
+  --color-accent-light: #f5e6c5;
+  --color-danger: #a22f2b;
+  --color-focus: #a8611e;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --shadow-card: 0 2px 8px rgba(44, 24, 16, 0.08), 0 1px 2px rgba(44, 24, 16, 0.06);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --shadow-card: 0 1px 3px rgba(59, 39, 35, 0.08), 0 8px 24px rgba(59, 39, 35, 0.04);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -23,51 +23,8 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-sans: Inter, "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
-
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1a1210;
-    --color-surface: #241a17;
-    --color-border: #3c2b22;
-    --color-text: #f1e6da;
-    --color-text-muted: #b8a493;
-    --color-primary: #e0596b;
-    --color-primary-dark: #c94456;
-    --color-accent: #dcb35c;
-    --color-accent-light: #4a3a1e;
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.35);
-  }
-}
-
-:root[data-theme="dark"] {
-  --color-bg: #1a1210;
-  --color-surface: #241a17;
-  --color-border: #3c2b22;
-  --color-text: #f1e6da;
-  --color-text-muted: #b8a493;
-  --color-primary: #e0596b;
-  --color-primary-dark: #c94456;
-  --color-accent: #dcb35c;
-  --color-accent-light: #4a3a1e;
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.35);
-}
-
-:root[data-theme="light"] {
-  --color-bg: #fdf9f2;
-  --color-surface: #ffffff;
-  --color-border: #e7dcc4;
-  --color-text: #2c1810;
-  --color-text-muted: #6b5a4a;
-  --color-primary: #7a1f2b;
-  --color-primary-dark: #5c1620;
-  --color-accent: #c8962c;
-  --color-accent-light: #f0dfa8;
-  --shadow-card: 0 2px 8px rgba(44, 24, 16, 0.08), 0 1px 2px rgba(44, 24, 16, 0.06);
 }
 
 * {

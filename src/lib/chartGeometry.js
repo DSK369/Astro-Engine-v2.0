@@ -65,6 +65,96 @@ function centroid(points) {
   return [x, y];
 }
 
+function pointInPolygon(point, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const crossesRay = (yi > point[1]) !== (yj > point[1])
+      && point[0] < ((xj - xi) * (point[1] - yi)) / (yj - yi) + xi;
+    if (crossesRay) inside = !inside;
+  }
+  return inside;
+}
+
+function insetPolygon(points, amount) {
+  const [cx, cy] = centroid(points);
+  return points.map(([x, y]) => [
+    x + (cx - x) * amount,
+    y + (cy - y) * amount,
+  ]);
+}
+
+function distance(a, b) {
+  return Math.hypot(a[0] - b[0], a[1] - b[1]);
+}
+
+export function getPlanetLabelMetrics(count) {
+  if (count >= 7) return { width: 24, height: 12, fontSize: 5.7, showDegree: false };
+  if (count >= 5) return { width: 30, height: 14, fontSize: 6.8, showDegree: false };
+  return { width: 40, height: 18, fontSize: 8.6, showDegree: true };
+}
+
+function candidateSlots(polygon, originalPolygon, houseNumber, count, metrics) {
+  const [minX, maxX] = polygon.reduce(
+    ([low, high], [x]) => [Math.min(low, x), Math.max(high, x)],
+    [Infinity, -Infinity],
+  );
+  const [minY, maxY] = polygon.reduce(
+    ([low, high], [, y]) => [Math.min(low, y), Math.max(high, y)],
+    [Infinity, -Infinity],
+  );
+  const candidates = [];
+  const steps = 15;
+
+  for (let row = 0; row <= steps; row += 1) {
+    for (let column = 0; column <= steps; column += 1) {
+      const point = [
+        minX + ((maxX - minX) * column) / steps,
+        minY + ((maxY - minY) * row) / steps,
+      ];
+      const labelCorners = [
+        [point[0] - metrics.width / 2, point[1] - metrics.height / 2],
+        [point[0] + metrics.width / 2, point[1] - metrics.height / 2],
+        [point[0] - metrics.width / 2, point[1] + metrics.height / 2],
+        [point[0] + metrics.width / 2, point[1] + metrics.height / 2],
+      ];
+      const avoidsNumber = distance(point, houseNumber) > 28;
+      const labelFits = labelCorners.every((corner) => pointInPolygon(corner, originalPolygon));
+      if (pointInPolygon(point, polygon) && avoidsNumber && labelFits) {
+        candidates.push(point);
+      }
+    }
+  }
+
+  const selected = [];
+  const center = centroid(polygon);
+  while (selected.length < count && candidates.length) {
+    let bestIndex = 0;
+    let bestScore = -Infinity;
+    candidates.forEach((candidate, index) => {
+      const collides = selected.some((slot) => (
+        Math.abs(candidate[0] - slot[0]) < metrics.width + 4
+        && Math.abs(candidate[1] - slot[1]) < metrics.height + 2
+      ));
+      if (collides) return;
+      const nearest = selected.length
+        ? Math.min(...selected.map((slot) => distance(candidate, slot)))
+        : 0;
+      const centrality = distance(candidate, center);
+      const score = selected.length ? nearest - centrality * 0.25 : -centrality;
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = index;
+      }
+    });
+    if (bestScore === -Infinity) break;
+    selected.push(candidates.splice(bestIndex, 1)[0]);
+  }
+
+  return selected;
+}
+
 // Label anchor per house: pulled slightly toward the square's edge from
 // the true centroid so text doesn't collide with the crossing lines at
 // the middle of the chart, and so planet lists have room to stack below
@@ -81,12 +171,17 @@ export function getHouseLayout(size) {
     const scaled = unitPoints.map(([x, y]) => [x * size, y * size]);
     const [cx, cy] = centroid(unitPoints);
     const [pdx, pdy] = LABEL_PULL[house];
+    const numberAnchor = [(cx + pdx) * size, (cy + pdy) * size];
+    const safePolygon = insetPolygon(scaled, 0.22);
     layout[house] = {
       points: scaled,
       pointsAttr: scaled.map((p) => p.join(",")).join(" "),
-      labelX: (cx + pdx) * size,
-      labelY: (cy + pdy) * size,
-      planetsY: (cy + pdy) * size + size * 0.045,
+      labelX: numberAnchor[0],
+      labelY: numberAnchor[1],
+      safePolygon,
+      planetSlots: (count, metrics = getPlanetLabelMetrics(count)) => (
+        candidateSlots(safePolygon, scaled, numberAnchor, count, metrics)
+      ),
     };
   }
   return layout;
