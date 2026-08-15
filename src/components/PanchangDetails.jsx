@@ -1,3 +1,5 @@
+import { useLanguage } from "../lib/language";
+import { translateTithiLabel, translateWeekday, translateNakshatra, translateYoga, translateKarana } from "../lib/i18n";
 import "./PanchangDetails.css";
 
 // Panchang is NOT implemented in the backend yet (see
@@ -5,12 +7,13 @@ import "./PanchangDetails.css";
 // whatever `panchang` shape the caller provides so it's a no-op to wire
 // up real data later; the `_mock` flag just controls the banner below.
 export default function PanchangDetails({ panchang }) {
+  const { t, lang } = useLanguage();
   const items = [
-    { label: "Tithi", value: panchang.tithi },
-    { label: "Var (Day)", value: panchang.var },
-    { label: "Nakshatra", value: panchang.nakshatra },
-    { label: "Yog", value: panchang.yog },
-    { label: "Karana", value: panchang.karana },
+    { label: t("panchangTithi"), value: translateTithiLabel(panchang.tithi, lang) },
+    { label: t("panchangVar"), value: translateWeekday(panchang.var, lang) },
+    { label: t("panchangNakshatra"), value: translateNakshatra(panchang.nakshatra, lang) },
+    { label: t("panchangYog"), value: translateYoga(panchang.yog, lang) },
+    { label: t("panchangKarana"), value: translateKarana(panchang.karana, lang) },
   ];
 
   return (

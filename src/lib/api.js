@@ -12,7 +12,7 @@ import {
   MOCK_PANCHANG, SUMMARY,
 } from "../data/mockChartData";
 
-const USE_MOCK = true; // flip to false once a real API base URL exists
+const USE_MOCK = false; // real FastAPI backend (astro-engine) running locally
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
 export async function fetchChart(birthData) {

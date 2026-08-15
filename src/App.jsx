@@ -10,9 +10,11 @@ import SignificatorTable from "./components/SignificatorTable";
 import NorthIndianChart from "./components/charts/NorthIndianChart";
 import SouthIndianChart from "./components/charts/SouthIndianChart";
 import { fetchChart } from "./lib/api";
+import { useLanguage } from "./lib/language";
 import "./App.css";
 
 function App() {
+  const { t, lang, toggleLang } = useLanguage();
   const [chartData, setChartData] = useState(null);
   const [submittedForm, setSubmittedForm] = useState(null);
   const [chartStyle, setChartStyle] = useState("north");
@@ -39,8 +41,13 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>Astro Engine</h1>
-        <p className="app-header__subtitle">Vedic &amp; KP birth chart calculator</p>
+        <div>
+          <h1>{t("appTitle")}</h1>
+          <p className="app-header__subtitle">{t("appSubtitle")}</p>
+        </div>
+        <button type="button" className="app-header__lang-toggle" onClick={toggleLang} lang={lang === "en" ? "hi" : "en"}>
+          {t("langToggle")}
+        </button>
       </header>
 
       <main className="app-main">
@@ -59,37 +66,37 @@ function App() {
             )}
 
             <section className="app-card">
-              <h2>Birth Details</h2>
+              <h2>{t("sectionBirthDetails")}</h2>
               <BirthDetailsHeader formData={submittedForm} />
             </section>
 
             <section className="app-card">
-              <h2>Summary</h2>
+              <h2>{t("sectionSummary")}</h2>
               <ResultsSummary summary={chartData.summary} />
             </section>
 
             <section className="app-card">
-              <h2>Ruling Planets</h2>
+              <h2>{t("sectionRulingPlanets")}</h2>
               <RulingPlanetsStrip rulingPlanets={chartData.rulingPlanets} />
             </section>
 
             <section className="app-card">
               <div className="app-card__header">
-                <h2>{chartStyle === "south" ? "South Indian" : "North Indian"} Chart</h2>
+                <h2>{chartStyle === "south" ? t("southIndianChart") : t("northIndianChart")}</h2>
                 <div className="chart-toggle">
                   <button
                     type="button"
                     className={chartStyle === "north" ? "is-active" : ""}
                     onClick={() => setChartStyle("north")}
                   >
-                    North
+                    {t("chartNorth")}
                   </button>
                   <button
                     type="button"
                     className={chartStyle === "south" ? "is-active" : ""}
                     onClick={() => setChartStyle("south")}
                   >
-                    South
+                    {t("chartSouth")}
                   </button>
                 </div>
               </div>
@@ -97,22 +104,22 @@ function App() {
             </section>
 
             <section className="app-card">
-              <h2>Panchang Details</h2>
+              <h2>{t("sectionPanchang")}</h2>
               <PanchangDetails panchang={chartData.panchang} />
             </section>
 
             <section className="app-card">
-              <h2>Planetary Positions</h2>
+              <h2>{t("sectionPlanetaryPositions")}</h2>
               <PlanetaryTable placements={chartData.allPlacements} />
             </section>
 
             <section className="app-card">
-              <h2>KP Cusps (Placidus)</h2>
+              <h2>{t("sectionCusps")}</h2>
               <CuspTable cusps={chartData.cusps} />
             </section>
 
             <section className="app-card">
-              <h2>KP Significators (4-Step)</h2>
+              <h2>{t("sectionSignificators")}</h2>
               <SignificatorTable significators={chartData.significators} />
             </section>
           </div>
