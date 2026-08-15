@@ -1,13 +1,16 @@
+import { useLanguage } from "../lib/language";
+import { translateRashi, translateNakshatra } from "../lib/i18n";
 import "./ResultsSummary.css";
 
 // "Rashi" here means Moon Rashi (the conventional meaning in Vedic
 // astrology — your Moon sign), distinct from Lagna Rashi (Ascendant sign).
 export default function ResultsSummary({ summary }) {
+  const { t, lang } = useLanguage();
   const items = [
-    { label: "Lagna Rashi", value: summary.lagnaRashi },
-    { label: "Rashi (Moon Sign)", value: summary.moonRashi },
-    { label: "Nakshatra", value: summary.moonNakshatra },
-    { label: "Charan", value: summary.moonCharan },
+    { label: t("summaryLagnaRashi"), value: translateRashi(summary.lagnaRashi, lang) },
+    { label: t("summaryMoonRashi"), value: translateRashi(summary.moonRashi, lang) },
+    { label: t("summaryNakshatra"), value: translateNakshatra(summary.moonNakshatra, lang) },
+    { label: t("summaryCharan"), value: summary.moonCharan },
   ];
 
   return (

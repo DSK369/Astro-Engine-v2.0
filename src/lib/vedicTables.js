@@ -90,15 +90,24 @@ export function computeKpLevels(longitude, nakshatraLord) {
   return { subLord: sub, subSubLord: subSub, subSubSubLord: subSubSub };
 }
 
-// Sign-relative DMS string, matches core/utils.py: decimal_to_dms
+// Sign-relative DMS string, matches core/utils.py: decimal_to_dms —
+// including whole-number seconds and the same rounding carry.
 export function decimalToDms(decimalDegree) {
   const lon = ((decimalDegree % 360) + 360) % 360;
   const degreeInSign = lon % 30;
-  const degrees = Math.floor(degreeInSign);
+  let degrees = Math.floor(degreeInSign);
   const minutesFull = (degreeInSign - degrees) * 60;
-  const minutes = Math.floor(minutesFull);
-  const seconds = (minutesFull - minutes) * 60;
-  return `${String(degrees).padStart(2, "0")}° ${String(minutes).padStart(2, "0")}' ${seconds.toFixed(2).padStart(5, "0")}"`;
+  let minutes = Math.floor(minutesFull);
+  let seconds = Math.round((minutesFull - minutes) * 60);
+
+  // Rounding can tip 59.6" up to a full 60" — carry it rather than
+  // printing an invalid 60. A sign spans [0°, 30°), so 30° wraps to 0°.
+  if (seconds === 60) { seconds = 0; minutes += 1; }
+  if (minutes === 60) { minutes = 0; degrees += 1; }
+  if (degrees === 30) degrees = 0;
+
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(degrees)}° ${pad(minutes)}' ${pad(seconds)}"`;
 }
 
 // Whole-sign house assignment, matches core/houses.py: assign_houses

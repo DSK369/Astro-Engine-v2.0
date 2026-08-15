@@ -1,14 +1,16 @@
 import { getHouseLayout, getSkeletonLines } from "../../lib/chartGeometry";
 import { RASHIS } from "../../lib/vedicTables";
+import { fitLabelBlock } from "../../lib/labelFit";
+import { useLanguage } from "../../lib/language";
+import { planetAbbr, retroMark } from "../../lib/i18n";
 import "./charts.css";
 
 const SIZE = 400;
 const PADDING = 20;
 
-const PLANET_ABBR = {
-  Lagna: "As", Sun: "Su", Moon: "Mo", Mars: "Ma", Mercury: "Me",
-  Jupiter: "Ju", Venus: "Ve", Saturn: "Sa", Rahu: "Ra", Ketu: "Ke",
-};
+function planetLabel(p, lang) {
+  return `${planetAbbr(p.planet, lang)}${p.retrograde ? retroMark(lang) : ""}`;
+}
 
 function groupByHouse(placements) {
   const grouped = {};
@@ -31,6 +33,7 @@ function getRashiNumberForHouse(houseNum, lagnaRashi) {
 }
 
 export default function NorthIndianChart({ placements = [] }) {
+  const { lang } = useLanguage();
   const layout = getHouseLayout(SIZE);
   const lines = getSkeletonLines(SIZE);
   const grouped = groupByHouse(placements);
@@ -50,25 +53,34 @@ export default function NorthIndianChart({ placements = [] }) {
           <line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} className="astro-chart__line" />
         ))}
 
-        {Object.entries(layout).map(([house, { labelX, labelY, planetsY }]) => {
+        {Object.entries(layout).map(([house, { contentPoly, center }]) => {
           const houseNum = Number(house);
           const occupants = grouped[houseNum] || [];
           const rashiNumber = lagnaRashi ? getRashiNumberForHouse(houseNum, lagnaRashi) : houseNum;
+          const labels = occupants.map((p) => planetLabel(p, lang));
+          const fit = fitLabelBlock(contentPoly, center, String(rashiNumber), labels);
+
           return (
             <g key={house}>
-              <text x={labelX} y={labelY} className="astro-chart__house-number" textAnchor="middle">
+              <text
+                x={fit.headerX}
+                y={fit.headerY}
+                textAnchor="middle"
+                style={{ fontSize: fit.fontSize }}
+                className="astro-chart__house-number"
+              >
                 {rashiNumber}
               </text>
               {occupants.map((p, i) => (
                 <text
                   key={p.planet}
-                  x={labelX}
-                  y={planetsY + i * 15}
+                  x={fit.positions[i].x}
+                  y={fit.positions[i].y}
                   textAnchor="middle"
+                  style={{ fontSize: fit.fontSize }}
                   className={`astro-chart__planet${p.retrograde ? " astro-chart__planet--retro" : ""}${p.planet === "Lagna" ? " astro-chart__planet--lagna" : ""}`}
                 >
-                  {PLANET_ABBR[p.planet] || p.planet.slice(0, 2)}
-                  {p.retrograde ? "(R)" : ""}
+                  {planetLabel(p, lang)}
                 </text>
               ))}
             </g>

@@ -13,6 +13,8 @@
 // House 1 at the top point, numbering proceeds counter-clockwise
 // (2 upper-left, 3 upper-left-corner, 4 left point, ... 12 upper-right).
 
+import { poleOfInaccessibility, insetPolygon } from "./labelFit.js";
+
 const TL = [0, 0];
 const TR = [1, 0];
 const BR = [1, 1];
@@ -58,37 +60,32 @@ export const SKELETON_LINES = [
   [M_T, M_R], [M_R, M_B], [M_B, M_L], [M_L, M_T],
 ];
 
-function centroid(points) {
-  const n = points.length;
-  const x = points.reduce((sum, p) => sum + p[0], 0) / n;
-  const y = points.reduce((sum, p) => sum + p[1], 0) / n;
-  return [x, y];
-}
+// Label anchor per house is derived from the polygon itself (the
+// roomiest interior point) rather than a hand-tuned offset table, so
+// text is placed by the same geometry that draws the house. See
+// lib/labelFit.js for why the previous offset table was replaced.
+const layoutCache = new Map();
 
-// Label anchor per house: pulled slightly toward the square's edge from
-// the true centroid so text doesn't collide with the crossing lines at
-// the middle of the chart, and so planet lists have room to stack below
-// the house-number label.
-const LABEL_PULL = {
-  1: [0, -0.12], 2: [-0.05, -0.08], 3: [-0.1, 0], 4: [-0.12, 0],
-  5: [-0.1, 0], 6: [-0.05, 0.08], 7: [0, 0.12], 8: [0.05, 0.08],
-  9: [0.1, 0], 10: [0.12, 0], 11: [0.1, 0], 12: [0.05, -0.08],
-};
+// Gap kept between label text and the drawn house lines.
+const LABEL_MARGIN_PX = 4;
 
 export function getHouseLayout(size) {
+  const cached = layoutCache.get(size);
+  if (cached) return cached;
+
   const layout = {};
   for (const [house, unitPoints] of Object.entries(HOUSE_POLYGONS)) {
     const scaled = unitPoints.map(([x, y]) => [x * size, y * size]);
-    const [cx, cy] = centroid(unitPoints);
-    const [pdx, pdy] = LABEL_PULL[house];
+    const center = poleOfInaccessibility(scaled);
     layout[house] = {
       points: scaled,
       pointsAttr: scaled.map((p) => p.join(",")).join(" "),
-      labelX: (cx + pdx) * size,
-      labelY: (cy + pdy) * size,
-      planetsY: (cy + pdy) * size + size * 0.045,
+      center,
+      contentPoly: insetPolygon(scaled, center, LABEL_MARGIN_PX),
     };
   }
+
+  layoutCache.set(size, layout);
   return layout;
 }
 

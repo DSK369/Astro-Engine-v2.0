@@ -1,19 +1,20 @@
 import { useState } from "react";
 import LocationAutocomplete from "./LocationAutocomplete";
+import { useLanguage } from "../lib/language";
 import "./BirthDataForm.css";
 
 export const AYANAMSA_OPTIONS = [
-  { value: "KP", label: "KP (Krishnamurti)" },
-  { value: "LAHIRI", label: "Lahiri" },
-  { value: "RAMAN", label: "Raman" },
-  { value: "FAGAN", label: "Fagan-Bradley" },
-  { value: "CUSTOM_KP", label: "Custom KP (23°44'18\")" },
-  { value: "CUSTOM_MANUAL", label: "Custom Manual…" },
+  { value: "KP", labelKey: "ayanamsaKP" },
+  { value: "LAHIRI", labelKey: "ayanamsaLahiri" },
+  { value: "RAMAN", labelKey: "ayanamsaRaman" },
+  { value: "FAGAN", labelKey: "ayanamsaFagan" },
+  { value: "CUSTOM_KP", labelKey: "ayanamsaCustomKP" },
+  { value: "CUSTOM_MANUAL", labelKey: "ayanamsaCustomManual" },
 ];
 
 export const HOUSE_SYSTEM_OPTIONS = [
-  { value: "whole_sign", label: "Vedic (Whole Sign)" },
-  { value: "placidus_kp", label: "KP (Placidus)" },
+  { value: "whole_sign", labelKey: "houseSystemWholeSign" },
+  { value: "placidus_kp", labelKey: "houseSystemPlacidus" },
 ];
 
 const DEFAULT_FORM = {
@@ -31,6 +32,7 @@ const DEFAULT_FORM = {
 };
 
 export default function BirthDataForm({ onSubmit, submitting }) {
+  const { t } = useLanguage();
   const [form, setForm] = useState(DEFAULT_FORM);
   const [error, setError] = useState(null);
 
@@ -41,11 +43,11 @@ export default function BirthDataForm({ onSubmit, submitting }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (!form.location) {
-      setError("Choose a location from the list — free text isn't enough, we need lat/long.");
+      setError(t("formErrorLocation"));
       return;
     }
     if (form.ayanamsa === "CUSTOM_MANUAL" && !form.customAyanamsaValue) {
-      setError("Enter a custom ayanamsa value.");
+      setError(t("formErrorAyanamsa"));
       return;
     }
     setError(null);
@@ -55,10 +57,10 @@ export default function BirthDataForm({ onSubmit, submitting }) {
   return (
     <form className="birth-form" onSubmit={handleSubmit}>
       <fieldset>
-        <legend>Name</legend>
+        <legend>{t("formName")}</legend>
         <div className="birth-form__row birth-form__row--3">
           <label>
-            First Name
+            {t("formFirstName")}
             <input
               type="text"
               value={form.firstName}
@@ -67,7 +69,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
             />
           </label>
           <label>
-            Father&rsquo;s Name
+            {t("formFatherName")}
             <input
               type="text"
               value={form.fatherName}
@@ -75,7 +77,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
             />
           </label>
           <label>
-            Last Name
+            {t("formLastName")}
             <input
               type="text"
               value={form.lastName}
@@ -86,10 +88,10 @@ export default function BirthDataForm({ onSubmit, submitting }) {
       </fieldset>
 
       <fieldset>
-        <legend>Birth Details</legend>
+        <legend>{t("formBirthDetails")}</legend>
         <div className="birth-form__row birth-form__row--2">
           <label>
-            Date of Birth
+            {t("formDob")}
             <input
               type="date"
               value={form.dob}
@@ -98,7 +100,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
             />
           </label>
           <label>
-            Time of Birth
+            {t("formTob")}
             <input
               type="time"
               step="1"
@@ -109,7 +111,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
           </label>
         </div>
         <label>
-          Location
+          {t("formLocation")}
           <LocationAutocomplete
             value={form.location}
             onSelect={(loc) => set("location", loc)}
@@ -119,19 +121,19 @@ export default function BirthDataForm({ onSubmit, submitting }) {
       </fieldset>
 
       <fieldset>
-        <legend>Calculation Settings</legend>
+        <legend>{t("formCalcSettings")}</legend>
         <div className="birth-form__row birth-form__row--2">
           <label>
-            Ayanamsa
+            {t("formAyanamsa")}
             <select value={form.ayanamsa} onChange={(e) => set("ayanamsa", e.target.value)}>
               {AYANAMSA_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
               ))}
             </select>
           </label>
           {form.ayanamsa === "CUSTOM_MANUAL" && (
             <label>
-              Custom Ayanamsa (°)
+              {t("formCustomAyanamsa")}
               <input
                 type="number"
                 step="0.000001"
@@ -145,7 +147,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
 
         <div className="birth-form__row birth-form__row--3">
           <fieldset className="birth-form__radio-group">
-            <legend>Chart Style</legend>
+            <legend>{t("formChartStyle")}</legend>
             <label className="birth-form__radio">
               <input
                 type="radio"
@@ -154,7 +156,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
                 checked={form.chartStyle === "north"}
                 onChange={(e) => set("chartStyle", e.target.value)}
               />
-              North Indian
+              {t("northIndianChart")}
             </label>
             <label className="birth-form__radio">
               <input
@@ -164,12 +166,12 @@ export default function BirthDataForm({ onSubmit, submitting }) {
                 checked={form.chartStyle === "south"}
                 onChange={(e) => set("chartStyle", e.target.value)}
               />
-              South Indian
+              {t("southIndianChart")}
             </label>
           </fieldset>
 
           <fieldset className="birth-form__radio-group">
-            <legend>Rahu / Ketu Node</legend>
+            <legend>{t("formRahuKetuNode")}</legend>
             <label className="birth-form__radio">
               <input
                 type="radio"
@@ -178,7 +180,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
                 checked={form.rahuNode === "mean"}
                 onChange={(e) => set("rahuNode", e.target.value)}
               />
-              Mean
+              {t("formMean")}
             </label>
             <label className="birth-form__radio">
               <input
@@ -188,15 +190,15 @@ export default function BirthDataForm({ onSubmit, submitting }) {
                 checked={form.rahuNode === "true"}
                 onChange={(e) => set("rahuNode", e.target.value)}
               />
-              True
+              {t("formTrue")}
             </label>
           </fieldset>
 
           <label>
-            House System
+            {t("formHouseSystem")}
             <select value={form.houseSystem} onChange={(e) => set("houseSystem", e.target.value)}>
               {HOUSE_SYSTEM_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
               ))}
             </select>
           </label>
@@ -206,7 +208,7 @@ export default function BirthDataForm({ onSubmit, submitting }) {
       {error && <p className="birth-form__error" role="alert">{error}</p>}
 
       <button type="submit" className="birth-form__submit" disabled={submitting}>
-        {submitting ? "Calculating…" : "Generate Chart"}
+        {submitting ? t("formSubmitting") : t("formSubmit")}
       </button>
     </form>
   );

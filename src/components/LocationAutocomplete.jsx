@@ -1,11 +1,13 @@
 import { useId, useRef, useState } from "react";
 import { searchCities } from "../data/cities";
+import { useLanguage } from "../lib/language";
 import "./LocationAutocomplete.css";
 
 // Emits the full city record ({ city, state, country, lat, lon, tz }) via
 // onSelect, not just a string — birth calculations need lat/lon/tz, not
 // a display label.
 export default function LocationAutocomplete({ value, onSelect, required }) {
+  const { t } = useLanguage();
   const [query, setQuery] = useState(value?.label || "");
   const [results, setResults] = useState([]);
   const [open, setOpen] = useState(false);
@@ -56,7 +58,7 @@ export default function LocationAutocomplete({ value, onSelect, required }) {
         aria-expanded={open}
         aria-controls={listId}
         aria-autocomplete="list"
-        placeholder="Start typing a city…"
+        placeholder={t("formLocationPlaceholder")}
         value={query}
         required={required}
         onChange={handleChange}
