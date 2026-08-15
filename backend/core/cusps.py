@@ -3,19 +3,26 @@ from core.astro import get_rashi, get_nakshatra, get_charan
 from core.utils import decimal_to_dms
 from core.kp import compute_kp_levels
 
-# SAME OFFSET as houses.py / planets.py, kept consistent so cusps line up
-# with planet/lagna longitudes computed elsewhere in core/.
-AYAN_OFFSET = -0.1
 
+def calculate_placidus_cusps(jd, latitude, longitude, ayanamsa_value):
+    """
+    12 Placidus house cusps, sidereal, with KP cuspal sub-lord chain.
 
-def calculate_placidus_cusps(jd, latitude, longitude):
+    `ayanamsa_value` must be passed in explicitly (from core.ayanamsa's
+    `value_func(jd)`) rather than re-derived here via
+    `swe.get_ayanamsa(jd)` — see core/houses.py's docstring for why
+    that's wrong for SIDM_USER custom modes. Previously this function
+    also added a `-0.1°` offset after the ayanamsa correction; removed
+    together with the ayanamsa fix — see Plan 4 in the project plan
+    folder for the arcsecond-level validation against a real KP-software
+    printout.
+    """
     houses, _ascmc = swe.houses(jd, latitude, longitude, b'P')
-    ayanamsa = swe.get_ayanamsa(jd)
 
     cusps = []
     for i in range(12):
         tropical = houses[i]
-        sidereal = (tropical - ayanamsa + AYAN_OFFSET) % 360
+        sidereal = (tropical - ayanamsa_value) % 360
 
         rashi, rashi_lord = get_rashi(sidereal)
         nakshatra, nak_lord = get_nakshatra(sidereal)

@@ -4,8 +4,15 @@ from core.utils import decimal_to_dms
 from core.kp import get_sub_lord
 from core.kp import compute_kp_levels
 
-FLAGS = swe.FLG_SWIEPH | swe.FLG_SIDEREAL | swe.FLG_SPEED
-AYAN_OFFSET = -0.1
+# Tropical + manual ayanamsa subtraction, NOT FLG_SIDEREAL. FLG_SIDEREAL
+# makes swisseph apply its own internal ayanamsa lookup, which for a
+# SIDM_USER custom mode (CUSTOM_KP / CUSTOM_MANUAL) hits the same
+# reference-epoch precession drift as calling swe.get_ayanamsa(jd)
+# directly — see core/houses.py's docstring. Explicit subtraction with a
+# caller-supplied ayanamsa_value sidesteps it entirely. (Previously this
+# also carried an unrelated `-0.1°` offset; both bugs are fixed together
+# — see Plan 4 in the project plan folder.)
+FLAGS = swe.FLG_SWIEPH | swe.FLG_SPEED
 
 PLANETS = {
     "Sun": swe.SUN,
@@ -21,10 +28,10 @@ PLANETS = {
 }
 
 
-def calculate_planet(jd, name):
+def calculate_planet(jd, name, ayanamsa_value):
     result = swe.calc_ut(jd, PLANETS[name], FLAGS)
 
-    lon = (result[0][0] + AYAN_OFFSET) % 360
+    lon = (result[0][0] - ayanamsa_value) % 360
     lat = result[0][1]
     speed = result[0][3]
 
@@ -54,11 +61,11 @@ def calculate_planet(jd, name):
     }
 
 
-def calculate_rahu_ketu(jd, true_node=False):
+def calculate_rahu_ketu(jd, ayanamsa_value, true_node=False):
     node = swe.TRUE_NODE if true_node else swe.MEAN_NODE
     result = swe.calc_ut(jd, node, FLAGS)
 
-    rahu_lon = (result[0][0] + AYAN_OFFSET) % 360
+    rahu_lon = (result[0][0] - ayanamsa_value) % 360
     speed = result[0][3]
 
     ketu_lon = (rahu_lon + 180) % 360
@@ -92,8 +99,8 @@ def calculate_rahu_ketu(jd, true_node=False):
     return build("Rahu", rahu_lon, speed), build("Ketu", ketu_lon, -speed)
 
 
-def get_all_planets(jd, true_node=False):
-    res = [calculate_planet(jd, p) for p in PLANETS]
-    r, k = calculate_rahu_ketu(jd, true_node)
+def get_all_planets(jd, ayanamsa_value, true_node=False):
+    res = [calculate_planet(jd, p, ayanamsa_value) for p in PLANETS]
+    r, k = calculate_rahu_ketu(jd, ayanamsa_value, true_node)
     res.extend([r, k])
     return res

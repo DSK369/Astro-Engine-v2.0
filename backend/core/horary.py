@@ -19,10 +19,6 @@ except ImportError:
 from core.data.kp_horary_249 import KP_249_TABLE
 from core.houses import calculate_lagna
 
-# SAME OFFSET as houses.py / planets.py / cusps.py, kept consistent so the
-# fast ascendant-only search loop below lines up with the full chart build.
-AYAN_OFFSET = -0.1
-
 
 def get_horary_range(horary_number):
     """Row for a horary number (1-249): dict with from_deg/to_deg/sign/
@@ -48,13 +44,18 @@ def get_kp_number_for_longitude(longitude):
     return 249  # 360.0 exactly
 
 
-def _fast_ascendant_longitude(jd, latitude, longitude):
+def _fast_ascendant_longitude(jd, latitude, longitude, ayanamsa_value):
     """Lightweight ascendant-only computation for the search loop -- skips
     nakshatra/KP-level lookups that calculate_lagna() does, since those
-    aren't needed until a candidate moment is found."""
+    aren't needed until a candidate moment is found.
+
+    `ayanamsa_value` must be passed in explicitly, same rule as
+    core/houses.py: re-deriving it per-call via swe.get_ayanamsa(jd)
+    drifts for SIDM_USER custom modes (CUSTOM_KP / CUSTOM_MANUAL) since
+    swisseph precesses from set_sid_mode's reference epoch instead of
+    holding the configured value fixed."""
     houses, ascmc = swe.houses(jd, latitude, longitude)
-    ayanamsa = swe.get_ayanamsa(jd)
-    return (ascmc[0] - ayanamsa + AYAN_OFFSET) % 360
+    return (ascmc[0] - ayanamsa_value) % 360
 
 
 def _jd_to_local_datetime(jd, timezone_str):
@@ -67,15 +68,20 @@ def _jd_to_local_datetime(jd, timezone_str):
     return utc_dt.astimezone(ZoneInfo(timezone_str))
 
 
-def find_exact_ascendant_time(date_str, timezone_str, latitude, longitude, horary_number):
+def find_exact_ascendant_time(date_str, timezone_str, latitude, longitude, horary_number, ayanamsa_value):
     """
     Search the given local calendar day for the moment the ascendant enters
     the sidereal zone belonging to `horary_number`, using an adaptive step
     (coarse when far from the target, finer as it converges -- same
     approach VedicAstro's horary_chart.py uses, adapted to this engine's
-    conventions). Requires set_ayanamsa(...) to already have been called by
-    the caller (mirrors every other core/ module: ayanamsa mode is a
-    process-wide swisseph setting, not a per-call argument here).
+    conventions).
+
+    `ayanamsa_value` is computed once by the caller (from core.ayanamsa's
+    value_func) and reused across the whole day-long search -- ayanamsa
+    precesses too slowly (~0.14 arcsec/day even for modes that vary by
+    date) for that to matter at this precision, and it sidesteps the
+    SIDM_USER precession-drift pitfall entirely, same as core/houses.py
+    and core/cusps.py.
 
     Returns (matched_local_datetime, lagna_dict) where lagna_dict is the
     same shape core.houses.calculate_lagna() returns (rashi, nakshatra,
@@ -98,7 +104,7 @@ def find_exact_ascendant_time(date_str, timezone_str, latitude, longitude, horar
     jd = jd_start
     matched_jd = None
     while jd <= jd_end:
-        asc = _fast_ascendant_longitude(jd, latitude, longitude)
+        asc = _fast_ascendant_longitude(jd, latitude, longitude, ayanamsa_value)
         diff = asc - mid_deg
         # ascendant moves ~1 deg every 4 minutes; adapt step to distance
         diff_abs = abs(diff) if abs(diff) <= 180 else 360 - abs(diff)
@@ -124,7 +130,7 @@ def find_exact_ascendant_time(date_str, timezone_str, latitude, longitude, horar
         )
 
     matched_local_dt = _jd_to_local_datetime(matched_jd, timezone_str)
-    lagna = calculate_lagna(matched_jd, latitude, longitude)
+    lagna = calculate_lagna(matched_jd, latitude, longitude, ayanamsa_value)
 
     if lagna["sub_lord"] != target["sub_lord"]:
         raise AssertionError(
