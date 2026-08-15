@@ -1,0 +1,54 @@
+.sunmoon {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sunmoon__notice {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: 0.85em;
+  margin: 0;
+}
+
+.sunmoon__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+@media (min-width: 720px) {
+  .sunmoon__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.sunmoon__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.sunmoon__label {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.sunmoon__value {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sunmoon__value--absent {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-muted);
+}

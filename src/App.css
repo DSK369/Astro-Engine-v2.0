@@ -61,6 +61,22 @@
   gap: var(--space-4);
 }
 
+/* Engine-reported limitations (e.g. Placidus undefined above the polar
+   circles). Distinct from .app-error: the chart still rendered. */
+.app-warnings {
+  margin: 0;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+  background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: 0.85em;
+  color: var(--color-text);
+}
+
+.app-warnings li + li {
+  margin-top: var(--space-2);
+}
+
 .app-results__notice {
   background: var(--color-accent-light);
   border-radius: var(--radius-md);
@@ -80,6 +96,18 @@
 
 .app-card h2 {
   margin-bottom: var(--space-3);
+}
+
+.app-card__subhead {
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.app-card__subhead:first-of-type {
+  margin-top: 0;
 }
 
 .app-card__header {

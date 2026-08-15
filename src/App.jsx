@@ -4,6 +4,8 @@ import BirthDetailsHeader from "./components/BirthDetailsHeader";
 import RulingPlanetsStrip from "./components/RulingPlanetsStrip";
 import ResultsSummary from "./components/ResultsSummary";
 import PanchangDetails from "./components/PanchangDetails";
+import DashaPanel from "./components/DashaPanel";
+import SunMoonPanel from "./components/SunMoonPanel";
 import PlanetaryTable from "./components/PlanetaryTable";
 import CuspTable from "./components/CuspTable";
 import SignificatorTable from "./components/SignificatorTable";
@@ -57,6 +59,12 @@ function App() {
 
         {chartData && (
           <div className="app-results">
+            {chartData.warnings?.length > 0 && (
+              <ul className="app-warnings" role="note">
+                {chartData.warnings.map((w) => <li key={w}>{w}</li>)}
+              </ul>
+            )}
+
             {chartData._mock && (
               <p className="app-results__notice">
                 Showing sample data — no backend API is wired up yet (see
@@ -103,10 +111,33 @@ function App() {
               <ChartComponent placements={chartData.allPlacements} />
             </section>
 
+            {chartData.riseSet && (
+              <section className="app-card">
+                <h2>{t("sectionSunMoon")}</h2>
+                <SunMoonPanel riseSet={chartData.riseSet} />
+              </section>
+            )}
+
             <section className="app-card">
               <h2>{t("sectionPanchang")}</h2>
-              <PanchangDetails panchang={chartData.panchang} />
+              {chartData.panchangAtSunrise ? (
+                <>
+                  <h3 className="app-card__subhead">{t("panchangAtBirth")}</h3>
+                  <PanchangDetails panchang={chartData.panchang} />
+                  <h3 className="app-card__subhead">{t("panchangAtSunrise")}</h3>
+                  <PanchangDetails panchang={chartData.panchangAtSunrise} />
+                </>
+              ) : (
+                <PanchangDetails panchang={chartData.panchang} />
+              )}
             </section>
+
+            {chartData.dasha && (
+              <section className="app-card">
+                <h2>{t("sectionDasha")}</h2>
+                <DashaPanel dasha={chartData.dasha} />
+              </section>
+            )}
 
             <section className="app-card">
               <h2>{t("sectionPlanetaryPositions")}</h2>
