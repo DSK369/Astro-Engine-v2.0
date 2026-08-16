@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gochara — Planetary Transit Timeline</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__mark" aria-hidden="true"></span>
+      <div>
+        <h1 id="app-title">Gochara</h1>
+        <p id="app-subtitle" class="topbar__sub">Planetary Transit Timeline · Swiss Ephemeris</p>
+      </div>
+    </div>
+    <div class="topbar__right">
+      <span id="status-pill" class="pill pill--ok">●</span>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button id="lang-en" class="lang-toggle__btn is-active">EN</button>
+        <button id="lang-hi" class="lang-toggle__btn">हिं</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <!-- Location -->
+      <section class="panel">
+        <h3 id="lbl-location" class="panel__title">Location</h3>
+        <div class="loc">
+          <input id="loc-input" class="input" type="text" autocomplete="off"
+                 placeholder="Search city…" aria-label="Search city" />
+          <ul id="loc-list" class="loc__list hidden"></ul>
+        </div>
+        <p id="loc-detail" class="panel__meta mono"></p>
+      </section>
+
+      <!-- Time range -->
+      <section class="panel">
+        <h3 id="lbl-range" class="panel__title">Time Range</h3>
+        <div class="field-row">
+          <label class="field">
+            <span id="lbl-start">Start</span>
+            <input id="start-input" class="input mono" type="datetime-local" step="60" />
+          </label>
+          <label class="field">
+            <span id="lbl-end">End</span>
+            <input id="end-input" class="input mono" type="datetime-local" step="60" />
+          </label>
+        </div>
+        <p id="lbl-presets" class="panel__meta">Quick spans</p>
+        <div id="preset-row" class="preset-row"></div>
+        <button id="apply-btn" class="btn btn--primary">Apply</button>
+      </section>
+
+      <!-- Y axis granularity -->
+      <section class="panel">
+        <h3 id="lbl-yaxis" class="panel__title">Y-Axis Granularity</h3>
+        <div id="ymode-seg" class="seg" role="group">
+          <button data-mode="rashi" class="seg__btn is-active">Rashi</button>
+          <button data-mode="nakshatra" class="seg__btn">Nakshatra</button>
+          <button data-mode="charan" class="seg__btn">Charan</button>
+        </div>
+      </section>
+
+      <!-- X axis calendar gridlines -->
+      <section class="panel">
+        <h3 id="lbl-xgrid" class="panel__title">X-Axis Grid</h3>
+        <div id="xgrid-seg" class="seg" role="group">
+          <button data-grid="off" class="seg__btn is-active">Off</button>
+          <button data-grid="day" class="seg__btn">Date</button>
+          <button data-grid="month" class="seg__btn">Month</button>
+          <button data-grid="year" class="seg__btn">Year</button>
+        </div>
+      </section>
+
+      <!-- Calculation settings -->
+      <section class="panel">
+        <h3 id="lbl-settings" class="panel__title">Calculation</h3>
+        <label class="field">
+          <span id="lbl-ayanamsa">Ayanamsa</span>
+          <select id="ayanamsa-select" class="input">
+            <option value="CUSTOM_KP">Custom KP (23:44:18)</option>
+            <option value="KP">KP (Krishnamurti)</option>
+            <option value="LAHIRI">Lahiri</option>
+            <option value="RAMAN">Raman</option>
+            <option value="FAGAN">Fagan-Bradley</option>
+          </select>
+        </label>
+        <label class="field">
+          <span id="lbl-node">Node (Rahu/Ketu)</span>
+          <select id="node-select" class="input">
+            <option value="MEAN">Mean</option>
+            <option value="TRUE">True</option>
+          </select>
+        </label>
+      </section>
+
+      <!-- Planets -->
+      <section class="panel panel--grow">
+        <div class="panel__head">
+          <h3 id="lbl-bodies" class="panel__title">Celestial Bodies</h3>
+          <div class="panel__actions">
+            <button id="btn-all" class="linklike">All</button>
+            <span class="sep">|</span>
+            <button id="btn-none" class="linklike">None</button>
+          </div>
+        </div>
+        <div id="planet-grid" class="planet-grid"></div>
+      </section>
+    </aside>
+
+    <section class="plot">
+      <div id="canvas-wrap" class="plot__canvas-wrap">
+        <canvas id="chart"></canvas>
+        <canvas id="overlay"></canvas>
+        <div id="tooltip" class="tooltip hidden"></div>
+        <div id="loading" class="loading hidden">Computing ephemeris…</div>
+      </div>
+      <footer class="plot__status mono">
+        <span id="status-window"></span>
+        <span id="status-hint" class="muted"></span>
+        <span id="status-ayanamsa"></span>
+      </footer>
+    </section>
+  </main>
+
+  <!-- ?v= busts stale browser caches (first deploy served .js as
+       text/plain before the backend MIME fix; heuristic caching would
+       otherwise pin that forever). Bump on breaking asset changes. -->
+  <script type="module" src="app.js?v=3"></script>
+</body>
+</html>

@@ -1,29 +1,45 @@
 import { useState } from "react";
 import BirthDataForm from "./components/BirthDataForm";
 import BirthDetailsHeader from "./components/BirthDetailsHeader";
+import HoraryForm from "./components/HoraryForm";
+import HoraryResultHeader from "./components/HoraryResultHeader";
 import RulingPlanetsStrip from "./components/RulingPlanetsStrip";
 import ResultsSummary from "./components/ResultsSummary";
 import PanchangDetails from "./components/PanchangDetails";
 import DashaPanel from "./components/DashaPanel";
 import SunMoonPanel from "./components/SunMoonPanel";
 import MuhurtaPanel from "./components/MuhurtaPanel";
+import CalendarPanel from "./components/CalendarPanel";
 import PlanetaryTable from "./components/PlanetaryTable";
 import CuspTable from "./components/CuspTable";
 import SignificatorTable from "./components/SignificatorTable";
 import NorthIndianChart from "./components/charts/NorthIndianChart";
 import SouthIndianChart from "./components/charts/SouthIndianChart";
-import { fetchChart } from "./lib/api";
+import { fetchChart, fetchHorary } from "./lib/api";
 import { useLanguage } from "./lib/language";
 import "./App.css";
 
+// Gochara (transit timeline) runs as its own FastAPI+static-frontend
+// process (gochara/backend/main.py, port 8100 by default) rather than
+// being folded into this app's own build -- Plan 6 Option A. Separately
+// configurable since it's deployed independently of the main API.
+const GOCHARA_URL = import.meta.env.VITE_GOCHARA_URL || "http://127.0.0.1:8100";
+
 function App() {
   const { t, lang, toggleLang } = useLanguage();
+  const [mode, setMode] = useState("natal"); // "natal" | "horary"
+
   const [chartData, setChartData] = useState(null);
   const [submittedForm, setSubmittedForm] = useState(null);
   const [chartStyle, setChartStyle] = useState("north");
   const [vargaView, setVargaView] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+
+  const [horaryData, setHoraryData] = useState(null);
+  const [horaryChartStyle, setHoraryChartStyle] = useState("north");
+  const [horaryLoading, setHoraryLoading] = useState(false);
+  const [horaryError, setHoraryError] = useState(null);
 
   async function handleSubmit(formData) {
     setLoading(true);
@@ -40,7 +56,21 @@ function App() {
     }
   }
 
+  async function handleHorarySubmit(formData) {
+    setHoraryLoading(true);
+    setHoraryError(null);
+    try {
+      const result = await fetchHorary(formData);
+      setHoraryData(result);
+    } catch (err) {
+      setHoraryError(err.message);
+    } finally {
+      setHoraryLoading(false);
+    }
+  }
+
   const ChartComponent = chartStyle === "south" ? SouthIndianChart : NorthIndianChart;
+  const HoraryChartComponent = horaryChartStyle === "south" ? SouthIndianChart : NorthIndianChart;
 
   return (
     <div className="app-shell">
@@ -49,17 +79,112 @@ function App() {
           <h1>{t("appTitle")}</h1>
           <p className="app-header__subtitle">{t("appSubtitle")}</p>
         </div>
-        <button type="button" className="app-header__lang-toggle" onClick={toggleLang} lang={lang === "en" ? "hi" : "en"}>
-          {t("langToggle")}
-        </button>
+        <div className="app-header__actions">
+          <a
+            className="app-header__transit-link"
+            href={GOCHARA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t("transitTimelineLink")}
+          </a>
+          <button type="button" className="app-header__lang-toggle" onClick={toggleLang} lang={lang === "en" ? "hi" : "en"}>
+            {t("langToggle")}
+          </button>
+        </div>
       </header>
 
       <main className="app-main">
-        <BirthDataForm onSubmit={handleSubmit} submitting={loading} />
+        <div className="mode-toggle" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "natal"}
+            className={mode === "natal" ? "is-active" : ""}
+            onClick={() => setMode("natal")}
+          >
+            {t("modeNatal")}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "horary"}
+            className={mode === "horary" ? "is-active" : ""}
+            onClick={() => setMode("horary")}
+          >
+            {t("modeHorary")}
+          </button>
+        </div>
 
-        {fetchError && <p className="app-error" role="alert">{fetchError}</p>}
+        {mode === "natal" && <BirthDataForm onSubmit={handleSubmit} submitting={loading} />}
+        {mode === "horary" && <HoraryForm onSubmit={handleHorarySubmit} submitting={horaryLoading} />}
 
-        {chartData && (
+        {mode === "natal" && fetchError && <p className="app-error" role="alert">{fetchError}</p>}
+        {mode === "horary" && horaryError && <p className="app-error" role="alert">{horaryError}</p>}
+
+        {mode === "horary" && horaryData && (
+          <div className="app-results">
+            <section className="app-card">
+              <h2>{t("sectionHoraryDetails")}</h2>
+              <HoraryResultHeader horary={horaryData} />
+            </section>
+
+            <section className="app-card">
+              <h2>{t("sectionSummary")}</h2>
+              <ResultsSummary summary={horaryData.summary} />
+            </section>
+
+            <section className="app-card">
+              <h2>{t("sectionRulingPlanets")}</h2>
+              <RulingPlanetsStrip rulingPlanets={horaryData.rulingPlanets} />
+            </section>
+
+            <section className="app-card">
+              <div className="app-card__header">
+                <h2>{horaryChartStyle === "south" ? t("southIndianChart") : t("northIndianChart")}</h2>
+                <div className="chart-toggle">
+                  <button
+                    type="button"
+                    className={horaryChartStyle === "north" ? "is-active" : ""}
+                    onClick={() => setHoraryChartStyle("north")}
+                  >
+                    {t("chartNorth")}
+                  </button>
+                  <button
+                    type="button"
+                    className={horaryChartStyle === "south" ? "is-active" : ""}
+                    onClick={() => setHoraryChartStyle("south")}
+                  >
+                    {t("chartSouth")}
+                  </button>
+                </div>
+              </div>
+              <HoraryChartComponent placements={horaryData.allPlacements} />
+            </section>
+
+            <section className="app-card">
+              <h2>{t("sectionPanchang")}</h2>
+              <PanchangDetails panchang={horaryData.panchang} />
+            </section>
+
+            <section className="app-card">
+              <h2>{t("sectionPlanetaryPositions")}</h2>
+              <PlanetaryTable placements={horaryData.allPlacements} />
+            </section>
+
+            <section className="app-card">
+              <h2>{t("sectionCusps")}</h2>
+              <CuspTable cusps={horaryData.cusps} />
+            </section>
+
+            <section className="app-card">
+              <h2>{t("sectionSignificators")}</h2>
+              <SignificatorTable significators={horaryData.significators} />
+            </section>
+          </div>
+        )}
+
+        {mode === "natal" && chartData && (
           <div className="app-results">
             {chartData.warnings?.length > 0 && (
               <ul className="app-warnings" role="note">
@@ -152,6 +277,13 @@ function App() {
                   muhurta={chartData.muhurta}
                   circumpolar={chartData.riseSet?.circumpolar}
                 />
+              </section>
+            )}
+
+            {chartData.calendar && (
+              <section className="app-card">
+                <h2>{t("sectionCalendar")}</h2>
+                <CalendarPanel calendar={chartData.calendar} />
               </section>
             )}
 

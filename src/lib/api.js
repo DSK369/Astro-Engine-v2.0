@@ -41,3 +41,19 @@ export async function fetchChart(birthData) {
   }
   return res.json();
 }
+
+// KP Prasna (Horary): same downstream pipeline as fetchChart, just a
+// different starting moment (searched for, not given) -- see
+// backend/services/app.py: post_horary() and Plan 6 §3.
+export async function fetchHorary(horaryData) {
+  const res = await fetch(`${API_BASE}/horary`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(horaryData),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.detail ? String(body.detail) : `Horary request failed: ${res.status}`);
+  }
+  return res.json();
+}

@@ -1,0 +1,118 @@
+// Sample location lookup database: city, state/region, country, lat, lon,
+// IANA timezone. This is a curated sample (~100 cities) for the UI demo —
+// NOT a production geo database. Swapping this for a full dataset
+// (e.g. GeoNames cities5000, ~200k+ entries) is a data-sourcing task, not
+// a code change: `LocationAutocomplete` just needs an array shaped like
+// this, from wherever it's loaded (a bundled file, an API, IndexedDB, etc).
+
+export const CITIES = [
+  // India
+  { city: "Mumbai", state: "Maharashtra", country: "India", lat: 19.0760, lon: 72.8777, tz: "Asia/Kolkata" },
+  { city: "Delhi", state: "Delhi", country: "India", lat: 28.7041, lon: 77.1025, tz: "Asia/Kolkata" },
+  { city: "Bangalore", state: "Karnataka", country: "India", lat: 12.9716, lon: 77.5946, tz: "Asia/Kolkata" },
+  { city: "Hyderabad", state: "Telangana", country: "India", lat: 17.3850, lon: 78.4867, tz: "Asia/Kolkata" },
+  { city: "Chennai", state: "Tamil Nadu", country: "India", lat: 13.0827, lon: 80.2707, tz: "Asia/Kolkata" },
+  { city: "Kolkata", state: "West Bengal", country: "India", lat: 22.5726, lon: 88.3639, tz: "Asia/Kolkata" },
+  { city: "Pune", state: "Maharashtra", country: "India", lat: 18.5204, lon: 73.8567, tz: "Asia/Kolkata" },
+  { city: "Ahmedabad", state: "Gujarat", country: "India", lat: 23.0225, lon: 72.5714, tz: "Asia/Kolkata" },
+  { city: "Jaipur", state: "Rajasthan", country: "India", lat: 26.9124, lon: 75.7873, tz: "Asia/Kolkata" },
+  { city: "Surat", state: "Gujarat", country: "India", lat: 21.1702, lon: 72.8311, tz: "Asia/Kolkata" },
+  { city: "Lucknow", state: "Uttar Pradesh", country: "India", lat: 26.8467, lon: 80.9462, tz: "Asia/Kolkata" },
+  { city: "Kanpur", state: "Uttar Pradesh", country: "India", lat: 26.4499, lon: 80.3319, tz: "Asia/Kolkata" },
+  { city: "Nagpur", state: "Maharashtra", country: "India", lat: 21.1458, lon: 79.0882, tz: "Asia/Kolkata" },
+  { city: "Indore", state: "Madhya Pradesh", country: "India", lat: 22.7196, lon: 75.8577, tz: "Asia/Kolkata" },
+  { city: "Thane", state: "Maharashtra", country: "India", lat: 19.2183, lon: 72.9781, tz: "Asia/Kolkata" },
+  { city: "Bhopal", state: "Madhya Pradesh", country: "India", lat: 23.2599, lon: 77.4126, tz: "Asia/Kolkata" },
+  { city: "Visakhapatnam", state: "Andhra Pradesh", country: "India", lat: 17.6868, lon: 83.2185, tz: "Asia/Kolkata" },
+  { city: "Patna", state: "Bihar", country: "India", lat: 25.5941, lon: 85.1376, tz: "Asia/Kolkata" },
+  { city: "Vadodara", state: "Gujarat", country: "India", lat: 22.3072, lon: 73.1812, tz: "Asia/Kolkata" },
+  { city: "Ghaziabad", state: "Uttar Pradesh", country: "India", lat: 28.6692, lon: 77.4538, tz: "Asia/Kolkata" },
+  { city: "Ludhiana", state: "Punjab", country: "India", lat: 30.9010, lon: 75.8573, tz: "Asia/Kolkata" },
+  { city: "Agra", state: "Uttar Pradesh", country: "India", lat: 27.1767, lon: 78.0081, tz: "Asia/Kolkata" },
+  { city: "Nashik", state: "Maharashtra", country: "India", lat: 19.9975, lon: 73.7898, tz: "Asia/Kolkata" },
+  { city: "Faridabad", state: "Haryana", country: "India", lat: 28.4089, lon: 77.3178, tz: "Asia/Kolkata" },
+  { city: "Meerut", state: "Uttar Pradesh", country: "India", lat: 28.9845, lon: 77.7064, tz: "Asia/Kolkata" },
+  { city: "Rajkot", state: "Gujarat", country: "India", lat: 22.3039, lon: 70.8022, tz: "Asia/Kolkata" },
+  { city: "Varanasi", state: "Uttar Pradesh", country: "India", lat: 25.3176, lon: 82.9739, tz: "Asia/Kolkata" },
+  { city: "Srinagar", state: "Jammu and Kashmir", country: "India", lat: 34.0837, lon: 74.7973, tz: "Asia/Kolkata" },
+  { city: "Aurangabad", state: "Maharashtra", country: "India", lat: 19.8762, lon: 75.3433, tz: "Asia/Kolkata" },
+  { city: "Dhanbad", state: "Jharkhand", country: "India", lat: 23.7957, lon: 86.4304, tz: "Asia/Kolkata" },
+  { city: "Amritsar", state: "Punjab", country: "India", lat: 31.6340, lon: 74.8723, tz: "Asia/Kolkata" },
+  { city: "Navi Mumbai", state: "Maharashtra", country: "India", lat: 19.0330, lon: 73.0297, tz: "Asia/Kolkata" },
+  { city: "Prayagraj", state: "Uttar Pradesh", country: "India", lat: 25.4358, lon: 81.8463, tz: "Asia/Kolkata" },
+  { city: "Ranchi", state: "Jharkhand", country: "India", lat: 23.3441, lon: 85.3096, tz: "Asia/Kolkata" },
+  { city: "Howrah", state: "West Bengal", country: "India", lat: 22.5958, lon: 88.2636, tz: "Asia/Kolkata" },
+  { city: "Coimbatore", state: "Tamil Nadu", country: "India", lat: 11.0168, lon: 76.9558, tz: "Asia/Kolkata" },
+  { city: "Jabalpur", state: "Madhya Pradesh", country: "India", lat: 23.1815, lon: 79.9864, tz: "Asia/Kolkata" },
+  { city: "Gwalior", state: "Madhya Pradesh", country: "India", lat: 26.2183, lon: 78.1828, tz: "Asia/Kolkata" },
+  { city: "Vijayawada", state: "Andhra Pradesh", country: "India", lat: 16.5062, lon: 80.6480, tz: "Asia/Kolkata" },
+  { city: "Jodhpur", state: "Rajasthan", country: "India", lat: 26.2389, lon: 73.0243, tz: "Asia/Kolkata" },
+  { city: "Madurai", state: "Tamil Nadu", country: "India", lat: 9.9252, lon: 78.1198, tz: "Asia/Kolkata" },
+  { city: "Raipur", state: "Chhattisgarh", country: "India", lat: 21.2514, lon: 81.6296, tz: "Asia/Kolkata" },
+  { city: "Kota", state: "Rajasthan", country: "India", lat: 25.2138, lon: 75.8648, tz: "Asia/Kolkata" },
+  { city: "Chandigarh", state: "Chandigarh", country: "India", lat: 30.7333, lon: 76.7794, tz: "Asia/Kolkata" },
+  { city: "Guwahati", state: "Assam", country: "India", lat: 26.1445, lon: 91.7362, tz: "Asia/Kolkata" },
+  { city: "Solapur", state: "Maharashtra", country: "India", lat: 17.6599, lon: 75.9064, tz: "Asia/Kolkata" },
+  { city: "Hubli-Dharwad", state: "Karnataka", country: "India", lat: 15.3647, lon: 75.1240, tz: "Asia/Kolkata" },
+  { city: "Mysore", state: "Karnataka", country: "India", lat: 12.2958, lon: 76.6394, tz: "Asia/Kolkata" },
+  { city: "Tiruchirappalli", state: "Tamil Nadu", country: "India", lat: 10.7905, lon: 78.7047, tz: "Asia/Kolkata" },
+  { city: "Bareilly", state: "Uttar Pradesh", country: "India", lat: 28.3670, lon: 79.4304, tz: "Asia/Kolkata" },
+  { city: "Aligarh", state: "Uttar Pradesh", country: "India", lat: 27.8974, lon: 78.0880, tz: "Asia/Kolkata" },
+  { city: "Moradabad", state: "Uttar Pradesh", country: "India", lat: 28.8386, lon: 78.7733, tz: "Asia/Kolkata" },
+  { city: "Bhubaneswar", state: "Odisha", country: "India", lat: 20.2961, lon: 85.8245, tz: "Asia/Kolkata" },
+  { city: "Salem", state: "Tamil Nadu", country: "India", lat: 11.6643, lon: 78.1460, tz: "Asia/Kolkata" },
+  { city: "Thiruvananthapuram", state: "Kerala", country: "India", lat: 8.5241, lon: 76.9366, tz: "Asia/Kolkata" },
+  { city: "Kochi", state: "Kerala", country: "India", lat: 9.9312, lon: 76.2673, tz: "Asia/Kolkata" },
+  { city: "Dehradun", state: "Uttarakhand", country: "India", lat: 30.3165, lon: 78.0322, tz: "Asia/Kolkata" },
+  { city: "Shimla", state: "Himachal Pradesh", country: "India", lat: 31.1048, lon: 77.1734, tz: "Asia/Kolkata" },
+  { city: "Panaji", state: "Goa", country: "India", lat: 15.4909, lon: 73.8278, tz: "Asia/Kolkata" },
+  { city: "Imphal", state: "Manipur", country: "India", lat: 24.8170, lon: 93.9368, tz: "Asia/Kolkata" },
+  { city: "Shillong", state: "Meghalaya", country: "India", lat: 25.5788, lon: 91.8933, tz: "Asia/Kolkata" },
+  { city: "Gangtok", state: "Sikkim", country: "India", lat: 27.3389, lon: 88.6065, tz: "Asia/Kolkata" },
+  { city: "Itanagar", state: "Arunachal Pradesh", country: "India", lat: 27.0844, lon: 93.6053, tz: "Asia/Kolkata" },
+  { city: "Aizawl", state: "Mizoram", country: "India", lat: 23.7271, lon: 92.7176, tz: "Asia/Kolkata" },
+  { city: "Kohima", state: "Nagaland", country: "India", lat: 25.6751, lon: 94.1086, tz: "Asia/Kolkata" },
+  { city: "Agartala", state: "Tripura", country: "India", lat: 23.8315, lon: 91.2868, tz: "Asia/Kolkata" },
+  { city: "Puducherry", state: "Puducherry", country: "India", lat: 11.9416, lon: 79.8083, tz: "Asia/Kolkata" },
+
+  // Rest of world
+  { city: "New York", state: "New York", country: "USA", lat: 40.7128, lon: -74.0060, tz: "America/New_York" },
+  { city: "Los Angeles", state: "California", country: "USA", lat: 34.0522, lon: -118.2437, tz: "America/Los_Angeles" },
+  { city: "Chicago", state: "Illinois", country: "USA", lat: 41.8781, lon: -87.6298, tz: "America/Chicago" },
+  { city: "San Francisco", state: "California", country: "USA", lat: 37.7749, lon: -122.4194, tz: "America/Los_Angeles" },
+  { city: "London", state: "England", country: "UK", lat: 51.5074, lon: -0.1278, tz: "Europe/London" },
+  { city: "Paris", state: "Ile-de-France", country: "France", lat: 48.8566, lon: 2.3522, tz: "Europe/Paris" },
+  { city: "Frankfurt", state: "Hesse", country: "Germany", lat: 50.1109, lon: 8.6821, tz: "Europe/Berlin" },
+  { city: "Amsterdam", state: "North Holland", country: "Netherlands", lat: 52.3676, lon: 4.9041, tz: "Europe/Amsterdam" },
+  { city: "Zurich", state: "Zurich", country: "Switzerland", lat: 47.3769, lon: 8.5417, tz: "Europe/Zurich" },
+  { city: "Tokyo", state: "Tokyo", country: "Japan", lat: 35.6762, lon: 139.6503, tz: "Asia/Tokyo" },
+  { city: "Dubai", state: "Dubai", country: "UAE", lat: 25.2048, lon: 55.2708, tz: "Asia/Dubai" },
+  { city: "Muscat", state: "Muscat", country: "Oman", lat: 23.5859, lon: 58.4059, tz: "Asia/Muscat" },
+  { city: "Doha", state: "Doha", country: "Qatar", lat: 25.2854, lon: 51.5310, tz: "Asia/Qatar" },
+  { city: "Riyadh", state: "Riyadh", country: "Saudi Arabia", lat: 24.7136, lon: 46.6753, tz: "Asia/Riyadh" },
+  { city: "Singapore", state: "Singapore", country: "Singapore", lat: 1.3521, lon: 103.8198, tz: "Asia/Singapore" },
+  { city: "Kuala Lumpur", state: "Federal Territory", country: "Malaysia", lat: 3.1390, lon: 101.6869, tz: "Asia/Kuala_Lumpur" },
+  { city: "Hong Kong", state: "Hong Kong", country: "Hong Kong", lat: 22.3193, lon: 114.1694, tz: "Asia/Hong_Kong" },
+  { city: "Kathmandu", state: "Bagmati", country: "Nepal", lat: 27.7172, lon: 85.3240, tz: "Asia/Kathmandu" },
+  { city: "Colombo", state: "Western", country: "Sri Lanka", lat: 6.9271, lon: 79.8612, tz: "Asia/Colombo" },
+  { city: "Dhaka", state: "Dhaka", country: "Bangladesh", lat: 23.8103, lon: 90.4125, tz: "Asia/Dhaka" },
+  { city: "Karachi", state: "Sindh", country: "Pakistan", lat: 24.8607, lon: 67.0011, tz: "Asia/Karachi" },
+  { city: "Lahore", state: "Punjab", country: "Pakistan", lat: 31.5497, lon: 74.3436, tz: "Asia/Karachi" },
+  { city: "Sydney", state: "New South Wales", country: "Australia", lat: -33.8688, lon: 151.2093, tz: "Australia/Sydney" },
+  { city: "Melbourne", state: "Victoria", country: "Australia", lat: -37.8136, lon: 144.9631, tz: "Australia/Melbourne" },
+  { city: "Auckland", state: "Auckland", country: "New Zealand", lat: -36.8485, lon: 174.7633, tz: "Pacific/Auckland" },
+  { city: "Toronto", state: "Ontario", country: "Canada", lat: 43.6532, lon: -79.3832, tz: "America/Toronto" },
+  { city: "Johannesburg", state: "Gauteng", country: "South Africa", lat: -26.2041, lon: 28.0473, tz: "Africa/Johannesburg" },
+  { city: "Nairobi", state: "Nairobi", country: "Kenya", lat: -1.2921, lon: 36.8219, tz: "Africa/Nairobi" },
+];
+
+export function searchCities(query, limit = 8) {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  return CITIES.filter(
+    (c) =>
+      c.city.toLowerCase().startsWith(q) ||
+      c.city.toLowerCase().includes(q) ||
+      c.state.toLowerCase().includes(q)
+  ).slice(0, limit);
+}

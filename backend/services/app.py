@@ -34,6 +34,7 @@ from core.muhurta import (
     compute_hora, compute_abhijit, compute_nishita, compute_trikalam,
     compute_choghadiya, compute_brahma_muhurta, current_of,
 )
+from core.calendar import compute_calendar
 from core.dasha_tree import build_dasha_snapshot
 from core.ayanamsa import set_ayanamsa
 from core.horary import find_exact_ascendant_time, get_horary_range
@@ -269,6 +270,26 @@ def _to_camel_panchang(p, tz):
     }
 
 
+def _to_camel_calendar(cal, tz):
+    # Plan 1 Phase 3 -- see core/calendar.py and Plan 1 Implementation.md
+    # §13 for what's verified (Amanta/Purnimanta naming, Adhika Masa,
+    # Sankranti) and what's deliberately not implemented (Kshaya Masa).
+    return {
+        "lunarMonth": {
+            "amanta": {**cal["lunarMonth"]["amanta"]},
+            "purnimanta": {**cal["lunarMonth"]["purnimanta"]},
+        },
+        "solarMonth": {**cal["solarMonth"]},
+        "ritu": cal["ritu"],
+        "ayana": cal["ayana"],
+        "nextSankranti": {
+            "at": jd_to_local(cal["nextSankranti"]["jd"], tz).strftime(DT_FMT),
+            "fromRashi": cal["nextSankranti"]["fromRashi"],
+            "toRashi": cal["nextSankranti"]["toRashi"],
+        },
+    }
+
+
 def _span(period, extra_keys=()):
     if period is None:
         return None
@@ -436,6 +457,9 @@ def post_chart(req: ChartRequest):
 
     ruling_raw = compute_ruling_planets(lagna_raw, moon_raw, birth_dt)
     panchang = compute_panchang(jd, ayanamsa_value, sun_raw, moon_raw, birth_dt)
+    calendar_raw = compute_calendar(
+        jd, ayanamsa_value, sun_raw["longitude"], panchang["tithi"]["paksha"]
+    )
 
     dasha_raw = build_dasha_snapshot(
         moon_raw["longitude"], moon_raw["nakshatra_lord"], birth_dt, _parse_as_of(req.asOf)
@@ -484,6 +508,7 @@ def post_chart(req: ChartRequest):
             _to_camel_panchang(panchang_at_sunrise, req.location.tz)
             if panchang_at_sunrise else None
         ),
+        "calendar": _to_camel_calendar(calendar_raw, req.location.tz),
         "warnings": warnings,
         "summary": {
             "lagnaRashi": lagna_raw["rashi"],

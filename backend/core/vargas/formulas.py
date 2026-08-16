@@ -14,17 +14,25 @@
 from core.vargas.rules import MOVABLE, FIXED, ODD, triplicity, element
 
 
+LEO, CANCER = 4, 3
+
+
 def d2_hora(sign, lon):
-    # Table extracted directly from PyJHora's own output (Plan 4 §3.3),
-    # not hand-derived -- the underlying table-construction logic is more
-    # involved than a single closed-form line.
-    table = {
-        0: (0, 1), 1: (3, 2), 2: (4, 5), 3: (7, 6), 4: (8, 9), 5: (11, 10),
-        6: (0, 1), 7: (3, 2), 8: (4, 5), 9: (7, 6), 10: (8, 9), 11: (11, 10),
-    }
-    effective_lon = lon if sign in ODD else (30 - lon)
-    half = 0 if effective_lon < 15 else 1
-    return table[sign][half]
+    # CORRECTED (see project plan folder's Plan 1 Implementation.md §8) --
+    # Plan 4 §3.3's table was wrong. Reported by the user: real D2 charts
+    # only ever land planets in house 1 or house 2, which is impossible
+    # under a 12-sign-pair table but is exactly what the classical rule
+    # produces. Verified live against multiple independent sources
+    # (Brihat Parashara Hora Shastra's own stated rule, cross-checked
+    # against desiutils.in/astrology/hora-d2 and others): the Hora chart
+    # occupies exactly two signs, Leo (Sun's Hora) and Cancer (Moon's
+    # Hora), for every planet regardless of which D1 sign it started in.
+    #   Odd sign:  first half (0-15 deg) -> Leo;    second half -> Cancer
+    #   Even sign: first half (0-15 deg) -> Cancer; second half -> Leo
+    first_half = lon < 15
+    if sign in ODD:
+        return LEO if first_half else CANCER
+    return CANCER if first_half else LEO
 
 
 def d3_drekkana(sign, lon):
@@ -119,16 +127,23 @@ def d27_nakshatramsa(sign, lon):
 
 def d30_trimsamsa(sign, lon):
     # Boundary-table lookup, absolute sign (not sign-relative) -- Plan 4
-    # §3.3. Ranges are lower-inclusive/upper-exclusive except the final
-    # segment of each parity, which also accepts lon == 30 exactly (a
-    # planet's in-sign longitude is always < 30 by construction, but the
-    # boundary is closed here rather than left to silently fall through).
+    # §3.3. CORRECTED against real PyJHora execution (source:
+    # trimsamsa_chart() in horoscope/chart/charts.py): every range is
+    # inclusive on BOTH ends (`long >= l_min and long <= l_max`), and at
+    # an exact shared boundary the first-listed (lower) range wins,
+    # since PyJHora collects all matches and takes the first one in
+    # ascending list order. A plain `lo <= lon <= hi` scanned in
+    # ascending order and returning on first match reproduces this
+    # exactly. (Previously this used lower-inclusive/upper-exclusive
+    # ranges instead -- wrong at the exact boundary degrees, caught by
+    # direct execution comparison against PyJHora, not just by testing
+    # this code's own internal consistency. See Plan 1 Implementation.md.)
     if sign in ODD:
         ranges = [(0, 5, 0), (5, 10, 10), (10, 18, 8), (18, 25, 2), (25, 30, 6)]
     else:
         ranges = [(0, 5, 1), (5, 12, 5), (12, 20, 11), (20, 25, 9), (25, 30, 7)]
     for lo, hi, result_sign in ranges:
-        if lo <= lon < hi or (hi == 30 and lon == 30):
+        if lo <= lon <= hi:
             return result_sign
     raise ValueError(f"D30: longitude {lon} out of the expected 0-30 range")
 
