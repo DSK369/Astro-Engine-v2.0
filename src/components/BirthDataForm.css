@@ -56,6 +56,10 @@
   outline-offset: 1px;
 }
 
+.birth-form__vargas {
+  min-height: 8.5em;
+}
+
 .birth-form__row {
   display: flex;
   flex-direction: column;

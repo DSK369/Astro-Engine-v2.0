@@ -31,6 +31,7 @@ export const UI_STRINGS = {
     southIndianChart: "South Indian Chart",
     chartNorth: "North",
     chartSouth: "South",
+    sectionVargas: "Divisional Chart",
 
     formName: "Name",
     formFirstName: "First Name",
@@ -53,6 +54,8 @@ export const UI_STRINGS = {
     formSubmitting: "Calculating…",
     formErrorLocation: "Choose a location from the list — free text isn't enough, we need lat/long.",
     formErrorAyanamsa: "Enter a custom ayanamsa value.",
+    formVargas: "Divisional Charts (Vargas)",
+    formVargasHint: "Ctrl/Cmd-click to select any number — none requested by default",
 
     ayanamsaKP: "KP (Krishnamurti)",
     ayanamsaLahiri: "Lahiri",
@@ -89,6 +92,7 @@ export const UI_STRINGS = {
     panchangNakshatra: "Nakshatra",
     panchangYog: "Yog",
     panchangKarana: "Karana",
+    panchangEnds: "Ends",
 
     colPlanet: "Planet",
     colRashi: "Rashi",
@@ -136,6 +140,20 @@ export const UI_STRINGS = {
     circumpolarNote: "At this latitude and date the Sun does not rise and set — Muhurta periods based on the day span cannot be derived.",
     panchangAtBirth: "At birth",
     panchangAtSunrise: "At sunrise",
+
+    sectionMuhurta: "Muhurta",
+    muhurtaHora: "Current Hora",
+    muhurtaChoghadiya: "Current Choghadiya",
+    muhurtaAbhijit: "Abhijit Muhurta",
+    muhurtaRahuKalam: "Rahu Kalam",
+    muhurtaYamaganda: "Yamaganda",
+    muhurtaGulikaKalam: "Gulika Kalam",
+    muhurtaNishita: "Nishita (midpoint)",
+    muhurtaBrahmaMuhurta: "Brahma Muhurta",
+    muhurtaAbhijitExcluded: "Some traditions don't observe Abhijit Muhurta on Wednesdays.",
+    muhurtaQuality_auspicious: "auspicious",
+    muhurtaQuality_neutral: "neutral",
+    muhurtaQuality_inauspicious: "inauspicious",
   },
 
   hi: {
@@ -154,6 +172,7 @@ export const UI_STRINGS = {
     southIndianChart: "दक्षिण भारतीय कुंडली",
     chartNorth: "उत्तर",
     chartSouth: "दक्षिण",
+    sectionVargas: "विभाग कुंडली",
 
     formName: "नाम",
     formFirstName: "प्रथम नाम",
@@ -176,6 +195,8 @@ export const UI_STRINGS = {
     formSubmitting: "गणना हो रही है…",
     formErrorLocation: "सूची में से कोई स्थान चुनें — सरल टेक्स्ट पर्याप्त नहीं है, अक्षांश/देशांश चाहिए।",
     formErrorAyanamsa: "कस्टम अयनांश मान दर्ज करें।",
+    formVargas: "विभाग कुंडली (वर्ग)",
+    formVargasHint: "Ctrl/Cmd दबाकर एक से अधिक चुनें — डिफ़ॉल्ट रूप से कोई नहीं चुना गया",
 
     ayanamsaKP: "के.पी. (कृष्णमूर्ति)",
     ayanamsaLahiri: "लाहिरी",
@@ -212,6 +233,7 @@ export const UI_STRINGS = {
     panchangNakshatra: "नक्षत्र",
     panchangYog: "योग",
     panchangKarana: "करण",
+    panchangEnds: "समाप्ति",
 
     colPlanet: "ग्रह",
     colRashi: "राशि",
@@ -259,6 +281,20 @@ export const UI_STRINGS = {
     circumpolarNote: "इस अक्षांश और तिथि पर सूर्य उदय-अस्त नहीं होता — दिनमान आधारित मुहूर्त गणना संभव नहीं है।",
     panchangAtBirth: "जन्म समय पर",
     panchangAtSunrise: "सूर्योदय पर",
+
+    sectionMuhurta: "मुहूर्त",
+    muhurtaHora: "वर्तमान होरा",
+    muhurtaChoghadiya: "वर्तमान चौघड़िया",
+    muhurtaAbhijit: "अभिजित मुहूर्त",
+    muhurtaRahuKalam: "राहु काल",
+    muhurtaYamaganda: "यमगण्ड",
+    muhurtaGulikaKalam: "गुलिक काल",
+    muhurtaNishita: "निशीथ (मध्य बिंदु)",
+    muhurtaBrahmaMuhurta: "ब्रह्म मुहूर्त",
+    muhurtaAbhijitExcluded: "कुछ परंपराओं में बुधवार को अभिजित मुहूर्त नहीं माना जाता।",
+    muhurtaQuality_auspicious: "शुभ",
+    muhurtaQuality_neutral: "सम",
+    muhurtaQuality_inauspicious: "अशुभ",
   },
 };
 

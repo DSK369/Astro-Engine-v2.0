@@ -17,6 +17,34 @@ export const HOUSE_SYSTEM_OPTIONS = [
   { value: "placidus_kp", labelKey: "houseSystemPlacidus" },
 ];
 
+// D-number, name, and life domain -- Plan 4 §2's priority-ordered table.
+// Backend core/vargas/formulas.py supports every one of these.
+export const VARGA_OPTIONS = [
+  { value: 9, label: "D9 Navamsa — marriage, fortune" },
+  { value: 10, label: "D10 Dasamsa — career, status" },
+  { value: 2, label: "D2 Hora — wealth" },
+  { value: 3, label: "D3 Drekkana — siblings, courage" },
+  { value: 4, label: "D4 Chaturthamsa — property, fortune" },
+  { value: 7, label: "D7 Saptamsa — children" },
+  { value: 12, label: "D12 Dwadasamsa — parents" },
+  { value: 16, label: "D16 Shodasamsa — vehicles, comforts" },
+  { value: 20, label: "D20 Vimsamsa — spiritual practice" },
+  { value: 24, label: "D24 Chaturvimsamsa — education" },
+  { value: 27, label: "D27 Bhamsha — strengths/weaknesses" },
+  { value: 30, label: "D30 Trimshamsha — misfortunes, health" },
+  { value: 40, label: "D40 Khavedamsha — auspicious effects" },
+  { value: 45, label: "D45 Akshavedamsha — conduct, legacy" },
+  { value: 60, label: "D60 Shashtiamsha — subtle/karmic" },
+  { value: 5, label: "D5 Panchamsa" },
+  { value: 6, label: "D6 Shashthamsa" },
+  { value: 8, label: "D8 Ashtamsa" },
+  { value: 11, label: "D11 Rudramsa" },
+  { value: 81, label: "D81 Nava-Navamsa" },
+  { value: 108, label: "D108 Ashtottaramsa" },
+  { value: 144, label: "D144 Dwadas-Dwadasamsa" },
+  { value: 150, label: "D150 Nadiamsa" },
+];
+
 const DEFAULT_FORM = {
   firstName: "",
   fatherName: "",
@@ -29,6 +57,7 @@ const DEFAULT_FORM = {
   chartStyle: "north",
   rahuNode: "mean",
   houseSystem: "whole_sign",
+  vargasRequested: [],
 };
 
 export default function BirthDataForm({ onSubmit, submitting }) {
@@ -203,6 +232,28 @@ export default function BirthDataForm({ onSubmit, submitting }) {
             </select>
           </label>
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t("formVargas")}</legend>
+        <label>
+          {t("formVargasHint")}
+          <select
+            multiple
+            className="birth-form__vargas"
+            value={form.vargasRequested.map(String)}
+            onChange={(e) =>
+              set(
+                "vargasRequested",
+                Array.from(e.target.selectedOptions, (o) => Number(o.value))
+              )
+            }
+          >
+            {VARGA_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </label>
       </fieldset>
 
       {error && <p className="birth-form__error" role="alert">{error}</p>}

@@ -39,3 +39,8 @@
 .panchang__value {
   font-weight: 600;
 }
+
+.panchang__end {
+  font-size: 0.75em;
+  color: var(--color-text-muted);
+}

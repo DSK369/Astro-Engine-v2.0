@@ -70,17 +70,21 @@ const moon = PLANETS.find((p) => p.planet === "Moon");
 
 export const RULING_PLANETS = computeRulingPlanets(LAGNA, moon, BIRTH_DATE);
 
-// Panchang is NOT computed by the backend yet (see
-// docs/KNOWN_LIMITATIONS.md, Phase 5 not started). These specific values
-// are real, though — read directly off the printed horoscope report for
-// this exact chart, not invented. Nakshatra matches Moon's derived value
-// above, confirming consistency.
+// Only used when USE_MOCK is flipped on in lib/api.js (the real backend
+// is live by default). These specific values are real, though — read
+// directly off the printed horoscope report for this exact chart, not
+// invented, and cross-checked against a live /chart response for the same
+// birth data. Nakshatra matches Moon's derived value above, confirming
+// consistency. Start/end are omitted here (unlike the real API's
+// boundary-solved timing) since this fixture predates that feature and a
+// static mock has no live Julian Day to solve against; PanchangDetails
+// simply shows no "Ends" line when a limb has no `end`.
 export const MOCK_PANCHANG = {
-  tithi: "Shukla 2 (Dwitiya)",
-  var: "Sunday",
-  nakshatra: moon.nakshatra,
-  yog: "Vriddhi",
-  karana: "Balava",
+  tithi: { number: 2, paksha: "Shukla", name: "Dwitiya", label: "Shukla 2 (Dwitiya)" },
+  vara: { index: 1, name: "Sunday", lord: "Sun" },
+  nakshatra: { name: moon.nakshatra, lord: moon.nakshatraLord, pada: moon.charan },
+  yoga: { name: "Vriddhi" },
+  karana: { name: "Balava" },
   _mock: true,
 };
 

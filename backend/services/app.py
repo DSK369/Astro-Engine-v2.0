@@ -24,15 +24,21 @@ except ImportError:  # pragma: no cover - matches core/jd.py's fallback
 
 from core.jd import to_julian_day
 from core.planets import get_all_planets, calculate_planet
-from core.riseset import day_events, RISING_MODES
+from core.riseset import day_events, jd_to_local, RISING_MODES
 from core.houses import calculate_lagna, assign_houses
 from core.cusps import calculate_placidus_cusps, get_placidus_house
 from core.significators import compute_significators
 from core.ruling_planets import compute_ruling_planets
 from core.panchang import compute_panchang
+from core.muhurta import (
+    compute_hora, compute_abhijit, compute_nishita, compute_trikalam,
+    compute_choghadiya, compute_brahma_muhurta, current_of,
+)
 from core.dasha_tree import build_dasha_snapshot
 from core.ayanamsa import set_ayanamsa
 from core.horary import find_exact_ascendant_time, get_horary_range
+from core.vargas import get_multiple_varga_charts
+from core.vargas.formulas import VARGA_FORMULAS
 
 EPHE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ephemeris")
 swe.set_ephe_path(EPHE_PATH)
@@ -77,6 +83,11 @@ class ChartRequest(BaseModel):
     # "standard" = apparent sunrise (matches published almanacs),
     # "hindu" = disc centre without refraction. See core/riseset.py.
     risingMode: str = "standard"
+    # Divisional (Varga) charts to compute, e.g. [9, 10] for D9 + D10.
+    # Opt-in and empty by default -- Plan 4 §5: D60 in particular is
+    # rarely needed and adds 16x the per-planet remapping work for no
+    # benefit on the common case.
+    vargasRequested: list[int] | None = None
 
 
 class HoraryRequest(BaseModel):
@@ -201,6 +212,27 @@ def _to_camel_riseset(d):
     }
 
 
+def _to_camel_varga_placement(p):
+    return {
+        "planet": p["planet"],
+        "rashi": p["rashi"],
+        "rashiLord": p["rashi_lord"],
+        "longitude": p["longitude"],
+        "degree": p["degree"],
+        "retrograde": p["retrograde"],
+        "house": p["house"],
+    }
+
+
+def _to_camel_varga(chart):
+    return {
+        "dNumber": chart["dNumber"],
+        "name": chart["name"],
+        "lagna": _to_camel_varga_placement(chart["lagna"]),
+        "planets": [_to_camel_varga_placement(p) for p in chart["planets"]],
+    }
+
+
 def _to_camel_ruling(r):
     return {
         "lagnaLord": r["lagna_lord"],
@@ -208,6 +240,96 @@ def _to_camel_ruling(r):
         "rasiLord": r["rasi_lord"],
         "dayLord": r["day_lord"],
         "moonStarLord": r["moon_star_lord"],
+    }
+
+
+def _to_camel_timed_limb(limb, tz, extra_keys):
+    # Full "YYYY-MM-DD HH:MM:SS" rather than riseSet's bare HH:MM:SS --
+    # unlike sunrise/sunset, a Panchang limb's start/end can genuinely
+    # fall on a different calendar date than the query moment (e.g. a
+    # Tithi spanning midnight, or occasionally sunrise itself), so the
+    # date is part of the answer, not implied context.
+    out = {k: limb[k] for k in extra_keys}
+    out["start"] = jd_to_local(limb["start_jd"], tz).strftime(DT_FMT)
+    out["end"] = jd_to_local(limb["end_jd"], tz).strftime(DT_FMT)
+    out["durationSeconds"] = round(limb["duration_seconds"])
+    out["remainingSeconds"] = round(limb["remaining_seconds"])
+    return out
+
+
+def _to_camel_panchang(p, tz):
+    return {
+        "tithi": _to_camel_timed_limb(p["tithi"], tz, ["number", "paksha", "name", "label"]),
+        "vara": {
+            "index": p["vara"]["index"], "name": p["vara"]["name"], "lord": p["vara"]["lord"],
+        },
+        "nakshatra": _to_camel_timed_limb(p["nakshatra"], tz, ["name", "lord", "pada"]),
+        "yoga": _to_camel_timed_limb(p["yoga"], tz, ["name"]),
+        "karana": _to_camel_timed_limb(p["karana"], tz, ["name"]),
+    }
+
+
+def _span(period, extra_keys=()):
+    if period is None:
+        return None
+    out = {k: period[k] for k in extra_keys}
+    out["start"] = period["start"].strftime(DT_FMT)
+    out["end"] = period["end"].strftime(DT_FMT)
+    return out
+
+
+def _hora_entry(h):
+    return {"lord": h["lord"], "start": h["start"].strftime(DT_FMT), "end": h["end"].strftime(DT_FMT)}
+
+
+def _choghadiya_entry(p):
+    return {
+        "name": p["name"], "quality": p["quality"],
+        "start": p["start"].strftime(DT_FMT), "end": p["end"].strftime(DT_FMT),
+    }
+
+
+def _to_camel_muhurta(day, at_dt):
+    # Plan 5 §8/§11: compute unconditionally alongside riseSet, and every
+    # entry degrades to None the same way core/riseset.py does when the
+    # underlying sunrise/sunset is None (circumpolar dates) rather than
+    # raise or fabricate a time.
+    horas = compute_hora(day)
+    abhijit = compute_abhijit(day)
+    nishita = compute_nishita(day)
+    trikalam = compute_trikalam(day)
+    choghadiya = compute_choghadiya(day)
+    brahma = compute_brahma_muhurta(day)
+
+    hora_out = None
+    if horas is not None:
+        current = current_of(horas, at_dt)
+        hora_out = {
+            "current": _hora_entry(current) if current else None,
+            "day": [_hora_entry(h) for h in horas[:12]],
+            "night": [_hora_entry(h) for h in horas[12:]],
+        }
+
+    choghadiya_out = None
+    if choghadiya is not None:
+        current = current_of(choghadiya["day"], at_dt) or current_of(choghadiya["night"], at_dt)
+        choghadiya_out = {
+            "current": _choghadiya_entry(current) if current else None,
+            "day": [_choghadiya_entry(p) for p in choghadiya["day"]],
+            "night": [_choghadiya_entry(p) for p in choghadiya["night"]],
+        }
+
+    return {
+        "hora": hora_out,
+        "abhijit": _span(abhijit, ["excludedByWeekday"]),
+        "nishita": {"midpoint": nishita["midpoint"].strftime(DT_FMT)} if nishita else None,
+        "rahuKalam": _span(trikalam["rahuKalam"]) if trikalam else None,
+        "yamaganda": _span(trikalam["yamaganda"]) if trikalam else None,
+        "gulikaKalam": _span(trikalam["gulikaKalam"]) if trikalam else None,
+        "choghadiya": choghadiya_out,
+        "brahmaMuhurta": _span(brahma, ["convention"]),
+        # Durmuhurta: not implemented -- see core/muhurta.py's module-level
+        # note for why (no citable per-weekday table found yet).
     }
 
 
@@ -253,6 +375,15 @@ def post_chart(req: ChartRequest):
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
 
+    if req.vargasRequested:
+        unsupported = [d for d in req.vargasRequested if d not in VARGA_FORMULAS]
+        if unsupported:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Unsupported Varga(s) requested: {unsupported}. "
+                       f"Supported: {sorted(VARGA_FORMULAS)}.",
+            )
+
     # Computed once and threaded through explicitly -- see
     # core/houses.py's docstring for why re-deriving this per-call via
     # swe.get_ayanamsa(jd) or FLG_SIDEREAL is wrong for custom modes.
@@ -265,6 +396,14 @@ def post_chart(req: ChartRequest):
 
     all_raw = [lagna_raw] + planets_raw
     all_raw, _house_map = assign_houses(all_raw, lagna_raw["rashi"])
+
+    # Vargas are a pure remapping of the D1 longitudes already computed
+    # above -- no new ephemeris calls, unaffected by Placidus/high-latitude
+    # concerns below, so computed here regardless of what happens to cusps.
+    vargas_raw = (
+        get_multiple_varga_charts(all_raw, req.vargasRequested)
+        if req.vargasRequested else {}
+    )
 
     # Placidus is undefined above the polar circles -- the ecliptic points
     # its cusps depend on never rise there, and Swiss Ephemeris raises.
@@ -296,7 +435,7 @@ def post_chart(req: ChartRequest):
     sun_raw = next(p for p in all_raw if p["planet"] == "Sun")
 
     ruling_raw = compute_ruling_planets(lagna_raw, moon_raw, birth_dt)
-    panchang = compute_panchang(sun_raw["longitude"], moon_raw["longitude"], moon_raw["nakshatra"], birth_dt)
+    panchang = compute_panchang(jd, ayanamsa_value, sun_raw, moon_raw, birth_dt)
 
     dasha_raw = build_dasha_snapshot(
         moon_raw["longitude"], moon_raw["nakshatra_lord"], birth_dt, _parse_as_of(req.asOf)
@@ -319,7 +458,7 @@ def post_chart(req: ChartRequest):
         sun_sr = calculate_planet(jd_sr, "Sun", ayanamsa_value)
         moon_sr = calculate_planet(jd_sr, "Moon", ayanamsa_value)
         panchang_at_sunrise = compute_panchang(
-            sun_sr["longitude"], moon_sr["longitude"], moon_sr["nakshatra"], day["sunrise"]
+            jd_sr, ayanamsa_value, sun_sr, moon_sr, day["sunrise"]
         )
 
     all_placements = [_to_camel_placement(p) for p in all_raw]
@@ -333,10 +472,18 @@ def post_chart(req: ChartRequest):
         "cusps": [_to_camel_cusp(c) for c in cusps_raw],
         "significators": [_to_camel_significator(s) for s in significators_raw],
         "rulingPlanets": _to_camel_ruling(ruling_raw),
+        "vargas": {
+            "requested": req.vargasRequested or [],
+            **{key: _to_camel_varga(chart) for key, chart in vargas_raw.items()},
+        },
         "dasha": _to_camel_dasha(dasha_raw),
         "riseSet": _to_camel_riseset(day),
-        "panchang": {**panchang, "_mock": False},
-        "panchangAtSunrise": panchang_at_sunrise,
+        "muhurta": _to_camel_muhurta(day, birth_dt),
+        "panchang": {**_to_camel_panchang(panchang, req.location.tz), "_mock": False},
+        "panchangAtSunrise": (
+            _to_camel_panchang(panchang_at_sunrise, req.location.tz)
+            if panchang_at_sunrise else None
+        ),
         "warnings": warnings,
         "summary": {
             "lagnaRashi": lagna_raw["rashi"],
@@ -420,8 +567,7 @@ def post_horary(req: HoraryRequest):
 
     ruling_raw = compute_ruling_planets(lagna_raw, moon_raw, matched_dt.replace(tzinfo=None))
     panchang = compute_panchang(
-        sun_raw["longitude"], moon_raw["longitude"], moon_raw["nakshatra"],
-        matched_dt.replace(tzinfo=None)
+        jd, ayanamsa_value, sun_raw, moon_raw, matched_dt.replace(tzinfo=None)
     )
 
     all_placements = [_to_camel_placement(p) for p in all_raw]
@@ -446,7 +592,7 @@ def post_horary(req: HoraryRequest):
         "cusps": [_to_camel_cusp(c) for c in cusps_raw],
         "significators": [_to_camel_significator(s) for s in significators_raw],
         "rulingPlanets": _to_camel_ruling(ruling_raw),
-        "panchang": {**panchang, "_mock": False},
+        "panchang": {**_to_camel_panchang(panchang, req.location.tz), "_mock": False},
         "summary": {
             "lagnaRashi": lagna_raw["rashi"],
             "moonRashi": moon_raw["rashi"],

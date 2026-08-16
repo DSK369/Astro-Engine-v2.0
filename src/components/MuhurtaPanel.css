@@ -1,0 +1,60 @@
+.muhurta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.muhurta__notice {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: 0.85em;
+  margin: 0;
+}
+
+.muhurta__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+@media (min-width: 720px) {
+  .muhurta__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.muhurta__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.muhurta__label {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.muhurta__value {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.muhurta__value--absent {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.muhurta__footnote {
+  font-size: 0.8em;
+  color: var(--color-text-muted);
+  margin: 0;
+}

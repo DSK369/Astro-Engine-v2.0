@@ -6,6 +6,7 @@ import ResultsSummary from "./components/ResultsSummary";
 import PanchangDetails from "./components/PanchangDetails";
 import DashaPanel from "./components/DashaPanel";
 import SunMoonPanel from "./components/SunMoonPanel";
+import MuhurtaPanel from "./components/MuhurtaPanel";
 import PlanetaryTable from "./components/PlanetaryTable";
 import CuspTable from "./components/CuspTable";
 import SignificatorTable from "./components/SignificatorTable";
@@ -20,6 +21,7 @@ function App() {
   const [chartData, setChartData] = useState(null);
   const [submittedForm, setSubmittedForm] = useState(null);
   const [chartStyle, setChartStyle] = useState("north");
+  const [vargaView, setVargaView] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
@@ -111,10 +113,45 @@ function App() {
               <ChartComponent placements={chartData.allPlacements} />
             </section>
 
+            {chartData.vargas?.requested?.length > 0 && (() => {
+              const requested = chartData.vargas.requested;
+              const active = requested.includes(vargaView) ? vargaView : requested[0];
+              const varga = chartData.vargas[`D${active}`];
+              const vargaPlacements = [varga.lagna, ...varga.planets];
+              return (
+                <section className="app-card">
+                  <div className="app-card__header">
+                    <h2>{t("sectionVargas")} — D{varga.dNumber} {varga.name}</h2>
+                    <select
+                      value={active}
+                      onChange={(e) => setVargaView(Number(e.target.value))}
+                    >
+                      {requested.map((d) => (
+                        <option key={d} value={d}>
+                          D{d} {chartData.vargas[`D${d}`].name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <ChartComponent placements={vargaPlacements} />
+                </section>
+              );
+            })()}
+
             {chartData.riseSet && (
               <section className="app-card">
                 <h2>{t("sectionSunMoon")}</h2>
                 <SunMoonPanel riseSet={chartData.riseSet} />
+              </section>
+            )}
+
+            {chartData.muhurta && (
+              <section className="app-card">
+                <h2>{t("sectionMuhurta")}</h2>
+                <MuhurtaPanel
+                  muhurta={chartData.muhurta}
+                  circumpolar={chartData.riseSet?.circumpolar}
+                />
               </section>
             )}
 
